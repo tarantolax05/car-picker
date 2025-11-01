@@ -1,0 +1,232 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>Dettaglio Auto</title>
+  <link rel="stylesheet" href="style.css">
+  <style>
+    /* styling minimale per la pagina dettaglio */
+    body {
+        background: linear-gradient(135deg,#0f2027,#203a43,#2c5364);
+        color: #fff;
+        font-family: 'Poppins', sans-serif;
+        margin:0;
+        padding:20px;
+        overflow-x:hidden; 
+    }
+    .container {
+        max-width: 900px; 
+        margin: 36px auto; 
+        background: rgba(255,255,255,0.03); 
+        border-radius: 12px; 
+        padding: 18px; 
+        box-shadow: 0 6px 30px rgba(0,0,0,0.4); 
+        opacity: 0;
+        transform: scale(0.95);
+        animation: fadeZoomIn 0.8s ease-out forwards;
+    }
+
+    @keyframes fadeZoomIn {
+        from {
+            opacity: 0;
+            transform: scale(0.95);
+        }
+        to {
+            opacity: 1;
+            transform: scale(1);
+        }
+    }
+    .top { 
+        display:flex; 
+        gap:20px; 
+        align-items:flex-start; 
+        flex-wrap:wrap; 
+    }
+    .img-wrap {
+        flex: 1 1 320px; 
+    }
+    .img-wrap img { 
+        width:100%; 
+        border-radius: 10px; 
+        object-fit: cover; 
+    }
+    .info { 
+        flex: 1 1 320px; 
+    }
+    .info h1 { 
+        margin:0 0 10px 0; 
+        font-size: 1.6rem; 
+    }
+    .info p { 
+        margin:8px 0;
+        opacity:0.95; 
+    }
+    .logo { 
+        margin-top:12px; 
+    }
+    .back { 
+        display:inline-block;
+        position: relative;
+        z-index: 50;  
+        margin-top:18px; 
+        padding:10px 16px; 
+        border-radius:10px; 
+        background: rgba(255,255,255,0.08) 220ms ease; 
+        color:#fff; 
+        text-decoration:none;
+        font-weight: 600;
+        box-shadow: 0 4px 14px rgba(0,0,0,0.35);
+        transition: transform 220ms cubic-bezier(.2,.9,.2,1), 
+                box-shadow 220ms ease, 
+                opacity 220ms ease;
+        -webkit-tap-highlight-color: transparent;
+        will-change: transform, box-shadow, opacity; 
+    }
+    .back:hover {
+        background: linear-gradient(180deg, rgba(15, 98, 254, 0.25), rgba(15,98,254,0.51));
+        transform: translateY(-3px) scale(1.05);
+        box-shadow: 0 10px 30px rgba(15,98,254,0.18);
+        border: 1px solid rgba(255,255,255,0.28);
+        opacity: 1;
+    }
+    .back:active {
+        transform: translateY(0) scale(0.99);
+        box-shadow: 0 6px 18px rgba(0,0,0,0.45);
+    }
+    .wiki-link {
+        display: inline-block;
+        margin-top: 8px;
+        color: #4fc3f7;
+        text-decoration: none;
+        font-weight: 600;
+        transition: all 0.25s ease;
+    }
+    .wiki-link:hover {
+        color: #81d4fa;
+        text-shadow: 0 0 6px rgba(79, 195, 247, 0.5);
+        transform: scale(1.05);
+    }
+  </style>
+</head>
+<body>
+  <div class="container" id="detailContainer">
+    <a class="back" href="index.html">← Torna al Garage</a>
+    <div id="detailContent"></div>
+  </div>
+
+  <script>
+    function getQueryParam(name) {
+      const params = new URLSearchParams(window.location.search);
+      return params.get(name);
+    }
+
+    function renderDetail(car) {
+        const target = document.getElementById('detailContent');
+        if (!car) {
+            target.innerHTML = '<p>Auto non trovata.</p>';
+            return;
+        }
+
+        // Costruisce automaticamente il percorso dell'immagine targa 3D
+        const plateImg = `images/${car.model}_plate.jpg`;
+
+        target.innerHTML = `
+            <div class="top">
+                <div class="img-wrap">
+                    <img src="${car.imageFront}" alt="${car.brand} ${car.model}" onerror="this.src='images/placeholder.jpg'">
+                </div>
+                <div class="info">
+                    <h1>${car.brand} ${car.model}</h1>
+                    <p><strong>Posti:</strong> ${car.seats}</p>
+                    <p><strong>Nazionalità marchio:</strong> ${car.nationality || '—'}</p><br>
+                    <div class="targa">
+                        <strong>Targa:</strong><br>
+                        <img src="${plateImg}" alt="targa ${car.model}" style="width:200px; margin-top:8px; border-radius:8px;" onerror="this.style.opacity=0.3">
+                    </div>
+                    <p><strong>Proprietario:</strong> ${car.owner}</p>
+                    <p><strong>Per saperne di più sull'auto</strong></p>
+                    <a href="${car.wiki}" target="_blank" class="wiki-link">Vai alla pagina Wikipedia ↗</a>
+                </div>
+            </div>
+        `;
+    }
+
+    document.addEventListener('DOMContentLoaded', () => {
+      const id = getQueryParam('id');
+      let carsData = [];
+
+      try {
+        const raw = localStorage.getItem('cars_data');
+        if (raw) carsData = JSON.parse(raw);
+      } catch (e) {
+        console.error('Errore parsing cars_data dal localStorage', e);
+      }
+
+      if (!carsData || carsData.length === 0) {
+        // ATTENZIONE: sostituisci/aggiorna questi fallback se necessario
+        carsData = [
+          { id:1, brand:"Renault", model:"Clio", plate:"EN 883 ET", seats:5, flag:"🇫🇷", imageFront:"images/Clio_front.jpg", imageRear:"images/Clio_rear.jpg", logo:"logos/Renault.jpg", nationality:"Francia", owner: "Filippo", wiki: "https://it.wikipedia.org/wiki/Renault_Clio_III" },
+          { id:2, brand:"Opel", model:"Corsa", plate:"FA 702 KG", seats:5, flag:"🇩🇪", imageFront:"images/Corsa_front.jpg", imageRear:"images/Corsa_rear.jpg", logo:"logos/Opel.jpg", nationality:"Germania", owner: "Luca", wiki: "https://it.wikipedia.org/wiki/Opel_Corsa_E" },
+          { id:3, brand:"Volkswagen", model:"Polo", plate:"DN 482 KN", seats:5, flag:"🇩🇪", imageFront:"images/Polo_front.jpg", imageRear:"images/Polo_rear.jpg", logo:"logos/Volkswagen.jpg", nationality:"Germania", owner: "Daniele", wiki: "https://it.wikipedia.org/wiki/Volkswagen_Polo_IV" },
+          { id:4, brand:"Fiat", model:"500", plate:"EC 730 CE", seats:4, flag:"🇮🇹", imageFront:"images/500_front.jpg", imageRear:"images/500_rear.jpg", logo:"logos/Fiat.jpg", nationality:"Italia", owner: "Melany", wiki: "https://it.wikipedia.org/wiki/Fiat_500_(2007)" }
+        ];
+      }
+
+      const car = carsData.find(c => String(c.id) === String(id));
+      renderDetail(car);
+    });
+  </script>
+</body>
+<script>
+  document.addEventListener("DOMContentLoaded", () => {
+    const link = document.querySelector('.wiki-link');
+    if (!link) return;
+
+    // Crea popup
+    const previewBox = document.createElement('div');
+    previewBox.style.position = 'absolute';
+    previewBox.style.padding = '12px';
+    previewBox.style.background = 'rgba(0,0,0,0.85)';
+    previewBox.style.borderRadius = '10px';
+    previewBox.style.color = 'white';
+    previewBox.style.width = '280px';
+    previewBox.style.fontSize = '0.9rem';
+    previewBox.style.boxShadow = '0 4px 20px rgba(0,0,0,0.5)';
+    previewBox.style.display = 'none';
+    previewBox.style.zIndex = '999';
+    document.body.appendChild(previewBox);
+
+    link.addEventListener('mouseenter', async (e) => {
+      const url = link.href;
+      const title = decodeURIComponent(url.split('/wiki/')[1]);
+      if (!title) return;
+
+      try {
+        const res = await fetch(`https://it.wikipedia.org/api/rest_v1/page/summary/${title}`);
+        const data = await res.json();
+        previewBox.innerHTML = `
+          <strong>${data.title}</strong><br>
+          <p style="margin-top:4px;">${data.extract ? data.extract.slice(0, 180) + '...' : 'Anteprima non disponibile.'}</p>
+        `;
+        previewBox.style.top = (e.pageY + 12) + 'px';
+        previewBox.style.left = (e.pageX + 12) + 'px';
+        previewBox.style.display = 'block';
+      } catch (err) {
+        previewBox.innerHTML = '<em>Anteprima non disponibile.</em>';
+        previewBox.style.display = 'block';
+      }
+    });
+
+    link.addEventListener('mousemove', (e) => {
+      previewBox.style.top = (e.pageY + 12) + 'px';
+      previewBox.style.left = (e.pageX + 12) + 'px';
+    });
+
+    link.addEventListener('mouseleave', () => {
+      previewBox.style.display = 'none';
+    });
+  });
+</script>
+
+</html>

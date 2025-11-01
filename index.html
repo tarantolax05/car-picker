@@ -1,0 +1,106 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>IL GARAGE DEI DONATELLI</title>
+  <link rel="stylesheet" href="style.css">
+  <link rel="manifest" href="manifest.json">
+  <script>
+    if ('serviceWorker' in navigator) {
+      navigator.serviceWorker.register('sw.js').catch(e => console.warn('SW registration failed', e));
+    }
+  </script>
+</head>
+<body>
+  <nav class="navbar" id="navbar">
+    <h1>DONATELLI - Il Garage</h1>
+  </nav>
+
+  <div id="garage" class="garage"></div>
+  <button class="btn" id="goRoulette">Decidi l'auto (o le auto)</button>
+
+  <script>
+    // ---------- DATI AUTO  ----------
+    const cars = [
+      { id:1, brand:"Renault", model:"Clio", plate:"EN 883 ET", seats:5, flag:"🇫🇷", imageFront:"images/Clio_front.jpg", imageRear:"images/Clio_rear.jpg", logo:"logos/Renault.jpg", nationality:"Francia", owner: "Filippo", wiki: "https://it.wikipedia.org/wiki/Renault_Clio_III" },
+      { id:2, brand:"Opel", model:"Corsa", plate:"FA 702 KG", seats:5, flag:"🇩🇪", imageFront:"images/Corsa_front.jpg", imageRear:"images/Corsa_rear.jpg", logo:"logos/Opel.jpg", nationality:"Germania", owner: "Luca", wiki: "https://it.wikipedia.org/wiki/Opel_Corsa_E" },
+      { id:3, brand:"Volkswagen", model:"Polo", plate:"DN 482 KN", seats:5, flag:"🇩🇪", imageFront:"images/Polo_front.jpg", imageRear:"images/Polo_rear.jpg", logo:"logos/Volkswagen.jpg", nationality:"Germania", owner: "Daniele", wiki: "https://it.wikipedia.org/wiki/Volkswagen_Polo_IV" },
+      { id:4, brand:"Fiat", model:"500", plate:"EC 730 CE", seats:4, flag:"🇮🇹", imageFront:"images/500_front.jpg", imageRear:"images/500_rear.jpg", logo:"logos/Fiat.jpg", nationality:"Italia", owner: "Melany", wiki: "https://it.wikipedia.org/wiki/Fiat_500_(2007)" }
+    ];
+
+    // ---------- SCRIVO DATI NEL localStorage (prima di qualsiasi click) ----------
+    try {
+      localStorage.setItem('cars_data', JSON.stringify(cars));
+    } catch (e) {
+      console.error('Impossibile scrivere in localStorage:', e);
+    }
+
+    // ---------- VARIABILI E RIFERIMENTI ----------
+    let frontMode = false; // default: rear
+    const garageDiv = document.getElementById('garage');
+    const goRouletteBtn = document.getElementById('goRoulette');
+
+    // ---------- RENDER DEL GARAGE (cards cliccabili) ----------
+    function renderGarage() {
+      garageDiv.innerHTML = '';
+
+      cars.forEach(car => {
+        const card = document.createElement('div');
+        card.className = 'car-card';
+        card.style.cursor = 'pointer';
+        card.setAttribute('data-id', car.id);
+
+        // immagine
+        const img = document.createElement('img');
+        img.className = 'car-image';
+        img.src = frontMode ? car.imageFront : car.imageRear;
+        img.alt = `${car.brand} ${car.model}`;
+        // fallback immagine se non trovata
+        img.onerror = () => { img.src = 'images/placeholder.jpg'; };
+
+        // info
+        const info = document.createElement('div');
+        info.className = 'car-info';
+        info.innerHTML = `
+          <h3>${car.flag} ${car.brand} ${car.model}</h3>
+          <p class="plate"><strong>Targa:</strong> ${car.plate}</p>
+          <p class="seats"><strong>Posti:</strong> ${car.seats}</p>
+        `;
+
+        // append
+        card.appendChild(img);
+        card.appendChild(info);
+        garageDiv.appendChild(card);
+
+        // click -> vai a car.html?id=...
+        card.addEventListener('click', () => {
+          // assicurati che i dati siano salvati (ridondanza sicura)
+          try {
+            localStorage.setItem('cars_data', JSON.stringify(cars));
+          } catch (e) { console.warn('localStorage write failed on click', e); }
+
+          // naviga alla pagina dettaglio
+          window.location.href = `car.html?id=${encodeURIComponent(car.id)}`;
+        });
+      });
+    }
+
+    // ---------- TOGGLE FRONT/REAR AL CLICK SULLA NAVBAR ----------
+    document.addEventListener('DOMContentLoaded', () => {
+      renderGarage();
+
+      const navbar = document.getElementById('navbar');
+      navbar.addEventListener('click', () => {
+        frontMode = !frontMode;
+        renderGarage();
+      });
+
+      // bottone roulette
+      goRouletteBtn.addEventListener('click', () => {
+        location.href = 'roulette.html';
+      });
+    });
+  </script>
+</body>
+</html>

@@ -1,0 +1,28 @@
+<html lang="it">
+    <head>
+        <meta charset="UTF-8" />
+        <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+        <title>SCELTA AUTO</title>
+        <link rel="stylesheet" href="style.css">
+    </head>
+    <body>
+        <h1>Vediamo chi dovrà guidare!</h1>
+        <div class="roulette-container">
+            <div class="roulette" id="roulette1">
+                <img id="rouletteLogo1" src="" alt="Logo auto" />
+            </div>
+            <div class="roulette" id="roulette2">
+                <img id="rouletteLogo2" src="" alt="Logo auto" />
+            </div>
+        </div>
+        <div class="buttons">
+            <button id="startBtn" class="btn">START</button>
+            <button id="rerollBtn" class="btn" disabled>RELOAD</button>
+            <br><br>
+            <center>
+                <button id="GoBackBtn" class="btn" onclick="location.href='index.html'">Torna al garage</button>
+            </center>
+        </div>
+        <script src="roulette.js"></script>
+    </body>
+</html>
