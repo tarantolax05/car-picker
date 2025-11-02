@@ -3,104 +3,238 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>IL GARAGE DEI DONATELLI</title>
-  <link rel="stylesheet" href="style.css">
-  <link rel="manifest" href="manifest.json">
-  <script>
-    if ('serviceWorker' in navigator) {
-      navigator.serviceWorker.register('sw.js').catch(e => console.warn('SW registration failed', e));
+  <title>Login - Garage</title>
+
+  <!-- Usa lo stesso foglio di stile principale -->
+  <link rel="stylesheet" href="style.css" />
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600&display=swap" rel="stylesheet" />
+
+  <style>
+    @keyframes fadeIn { from { opacity: 0; transform: translateY(15px);} to { opacity: 1; transform: translateY(0);} }
+    @keyframes float { from { transform: translateY(0px) translateX(0px) rotate(0deg); } to { transform: translateY(30px) translateX(20px) rotate(10deg); } }
+    @keyframes shake {
+      10%, 90% { transform: translateX(-1px); }
+      20%, 80% { transform: translateX(2px); }
+      30%, 50%, 70% { transform: translateX(-4px); }
+      40%, 60% { transform: translateX(4px); }
     }
-  </script>
+
+    html, body { height: 100%; margin: 0; }
+    body {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      height: 100vh;
+      background: radial-gradient(circle at 25% 25%, rgba(15,98,254,0.15), #121212 70%);
+      overflow: hidden;
+      font-family: 'Poppins', sans-serif;
+      color: #fff;
+    }
+
+    .login-container {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      animation: fadeIn 0.8s ease-out;
+      position: relative;
+      width: 100%;
+      padding: 20px;
+      box-sizing: border-box;
+    }
+
+    .glass-background {
+      position: absolute;
+      top: -30%;
+      left: -30%;
+      width: 160%;
+      height: 160%;
+      background: radial-gradient(circle at 50% 50%, rgba(255,255,255,0.08), transparent 70%);
+      filter: blur(80px);
+      animation: float 8s ease-in-out infinite alternate;
+      z-index: 0;
+      pointer-events: none;
+    }
+
+    .login-box {
+      position: relative;
+      z-index: 1;
+      background: rgba(255, 255, 255, 0.12);
+      backdrop-filter: blur(12px) saturate(150%);
+      border-radius: 18px;
+      padding: 45px 50px;
+      text-align: center;
+      border: 1px solid rgba(255, 255, 255, 0.16);
+      box-shadow: 0 4px 25px rgba(0, 0, 0, 0.35);
+      width: 320px; 
+      max-width: calc(100% - 40px);
+    }
+
+    .login-box h1 {
+      font-size: 1.9rem;
+      font-weight: 600;
+      color: #fff;
+      margin-bottom: 28px; /* padding originale */
+      text-shadow: 0 0 10px rgba(255,255,255,0.10);
+    }
+
+    .login-box input {
+      width: 100%;
+      padding: 13px;
+      margin: 10px 0;
+      border: none;
+      outline: none;
+      border-radius: 10px;
+      background: rgba(255, 255, 255, 0.15);
+      color: #fff;
+      font-size: 16px;
+      text-align: center;
+      transition: background 0.25s ease, box-shadow 0.25s ease, transform 0.15s ease;
+      box-sizing: border-box;
+    }
+
+    .login-box input::placeholder { color: rgba(255,255,255,0.6); }
+
+    .login-box input:focus {
+      background: rgba(15, 98, 254, 0.15);
+      box-shadow: 0 0 15px rgba(15,98,254,0.23);
+    }
+
+    .btn-login { margin-top: 20px; width: 100%; }
+
+    .error {
+      margin-top: 12px;
+      color: #ffb3b3;
+      background: rgba(255, 50, 50, 0.06);
+      border: 1px solid rgba(255,50,50,0.12);
+      padding: 8px 12px;
+      border-radius: 8px;
+      display: none;
+      font-weight: 600;
+    }
+
+    .error.show {
+      display: block;
+      animation: shake 420ms ease;
+    }
+
+    .footer-text {
+      margin-top: 18px;
+      font-size: 0.9rem;
+      color: rgba(255, 255, 255, 0.51);
+    }
+
+    @media (max-width: 420px) {
+      .login-box { padding: 45px 50px; width: 320px; max-width: 92%; }
+      .login-box h1 { font-size: 1.5rem; }
+    }
+
+    @keyframes spin {
+        0% { transform: rotate(0deg); }
+        100% { transform: rotate(360deg); }
+    }
+
+    /* Loader moderno e fluido */
+    #loader {
+        display: none;
+        margin: 20px auto;
+        width: 48px;
+        height: 48px;
+        border-radius: 50%;
+        position: relative;
+        box-sizing: border-box;
+    }
+
+    #loader::before,
+    #loader::after {
+        content: "";
+        position: absolute;
+        inset: 0;
+        border-radius: 50%;
+        border: 4px solid transparent;
+        border-top-color: #0f62fe;
+        animation: spin 1s linear infinite;
+    }
+
+    #loader::after {
+        border: 4px solid transparent;
+        border-bottom-color: #6fa8ff;
+        animation-duration: 1.5s;
+        animation-direction: reverse;
+    }
+
+  </style>
 </head>
-<body>
-  <nav class="navbar" id="navbar">
-    <h1>DONATELLI - Il Garage</h1>
-  </nav>
 
-  <div id="garage" class="garage"></div>
-  <button class="btn" id="goRoulette">Decidi l'auto (o le auto)</button>
+<body>
+  <div class="login-container" role="main">
+    <div class="glass-background" aria-hidden="true"></div>
+
+    <div class="login-box" aria-labelledby="login-title">
+        <h1 id="login-title">Accedi al Garage</h1>
+
+        <input type="text" id="username" placeholder="Nome utente" aria-label="Nome utente" autocomplete="username" />
+        <input type="password" id="password" placeholder="Password" aria-label="Password" autocomplete="current-password" />
+
+        <button class="btn btn-login" id="loginBtn" type="button">Entra</button>
+        <div id="loader" aria-hidden="true"></div>
+        <div id="errorMsg" class="error" role="alert" aria-live="assertive">Username o password errati.</div>
+
+        <p class="footer-text">Benvenuto nel tuo garage virtuale</p>
+    </div>
+  </div>
 
   <script>
-    // ---------- DATI AUTO  ----------
-    const cars = [
-      { id:1, brand:"Renault", model:"Clio", plate:"EN 883 ET", seats:5, flag:"🇫🇷", imageFront:"images/Clio_front.jpg", imageRear:"images/Clio_rear.jpg", logo:"logos/Renault.jpg", nationality:"Francia", owner: "Filippo", wiki: "https://it.wikipedia.org/wiki/Renault_Clio_III" },
-      { id:2, brand:"Opel", model:"Corsa", plate:"FA 702 KG", seats:5, flag:"🇩🇪", imageFront:"images/Corsa_front.jpg", imageRear:"images/Corsa_rear.jpg", logo:"logos/Opel.jpg", nationality:"Germania", owner: "Luca", wiki: "https://it.wikipedia.org/wiki/Opel_Corsa_E" },
-      { id:3, brand:"Volkswagen", model:"Polo", plate:"DN 482 KN", seats:5, flag:"🇩🇪", imageFront:"images/Polo_front.jpg", imageRear:"images/Polo_rear.jpg", logo:"logos/Volkswagen.jpg", nationality:"Germania", owner: "Daniele", wiki: "https://it.wikipedia.org/wiki/Volkswagen_Polo_IV" },
-      { id:4, brand:"Fiat", model:"500", plate:"EC 730 CE", seats:4, flag:"🇮🇹", imageFront:"images/500_front.jpg", imageRear:"images/500_rear.jpg", logo:"logos/Fiat.jpg", nationality:"Italia", owner: "Melany", wiki: "https://it.wikipedia.org/wiki/Fiat_500_(2007)" }
-    ];
+    (function() {
+      const LOGIN_USER = 'ADMIN2020';
+      const LOGIN_PASS = 'dntl00i';
 
-    // ---------- SCRIVO DATI NEL localStorage (prima di qualsiasi click) ----------
-    try {
-      localStorage.setItem('cars_data', JSON.stringify(cars));
-    } catch (e) {
-      console.error('Impossibile scrivere in localStorage:', e);
-    }
+      const usernameEl = document.getElementById('username');
+      const passwordEl = document.getElementById('password');
+      const loginBtn = document.getElementById('loginBtn');
+      const errorMsg = document.getElementById('errorMsg');
 
-    // ---------- VARIABILI E RIFERIMENTI ----------
-    let frontMode = false; // default: rear
-    const garageDiv = document.getElementById('garage');
-    const goRouletteBtn = document.getElementById('goRoulette');
+      function showError(text) {
+        errorMsg.textContent = text || 'Username o password errati.';
+        errorMsg.classList.remove('show');
+        void errorMsg.offsetWidth;
+        errorMsg.classList.add('show');
+      }
 
-    // ---------- RENDER DEL GARAGE (cards cliccabili) ----------
-    function renderGarage() {
-      garageDiv.innerHTML = '';
+      function clearError() {
+        errorMsg.classList.remove('show');
+      }
 
-      cars.forEach(car => {
-        const card = document.createElement('div');
-        card.className = 'car-card';
-        card.style.cursor = 'pointer';
-        card.setAttribute('data-id', car.id);
+      function handleLogin() {
+        const user = (usernameEl.value || '').trim();
+        const pass = (passwordEl.value || '').trim();
 
-        // immagine
-        const img = document.createElement('img');
-        img.className = 'car-image';
-        img.src = frontMode ? car.imageFront : car.imageRear;
-        img.alt = `${car.brand} ${car.model}`;
-        // fallback immagine se non trovata
-        img.onerror = () => { img.src = 'images/placeholder.jpg'; };
+        if (user === LOGIN_USER && pass === LOGIN_PASS) {
+            loginBtn.style.display = 'none';
 
-        // info
-        const info = document.createElement('div');
-        info.className = 'car-info';
-        info.innerHTML = `
-          <h3>${car.flag} ${car.brand} ${car.model}</h3>
-          <p class="plate"><strong>Targa:</strong> ${car.plate}</p>
-          <p class="seats"><strong>Posti:</strong> ${car.seats}</p>
-        `;
+            const loader = document.getElementById('loader');
+            loader.style.display = 'block';
 
-        // append
-        card.appendChild(img);
-        card.appendChild(info);
-        garageDiv.appendChild(card);
+            try { localStorage.setItem('logged_user', user); } catch(e){}
 
-        // click -> vai a car.html?id=...
-        card.addEventListener('click', () => {
-          // assicurati che i dati siano salvati (ridondanza sicura)
-          try {
-            localStorage.setItem('cars_data', JSON.stringify(cars));
-          } catch (e) { console.warn('localStorage write failed on click', e); }
+            setTimeout(() => window.location.href = 'home.html', 1000);
+        } else {
+            showError('Username o password errati.');
+        }
+        }
 
-          // naviga alla pagina dettaglio
-          window.location.href = `car.html?id=${encodeURIComponent(car.id)}`;
-        });
-      });
-    }
+      loginBtn.addEventListener('click', handleLogin);
 
-    // ---------- TOGGLE FRONT/REAR AL CLICK SULLA NAVBAR ----------
-    document.addEventListener('DOMContentLoaded', () => {
-      renderGarage();
-
-      const navbar = document.getElementById('navbar');
-      navbar.addEventListener('click', () => {
-        frontMode = !frontMode;
-        renderGarage();
+      document.addEventListener('keydown', (e) => {
+        if (e.key === 'Enter') {
+          const active = document.activeElement;
+          if (active && (active.id === 'username' || active.id === 'password')) handleLogin();
+        }
       });
 
-      // bottone roulette
-      goRouletteBtn.addEventListener('click', () => {
-        location.href = 'roulette.html';
-      });
-    });
+      usernameEl.addEventListener('input', clearError);
+      passwordEl.addEventListener('input', clearError);
+    })();
   </script>
 </body>
 </html>
