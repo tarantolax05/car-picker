@@ -6,6 +6,7 @@
   <title>Login - Garage</title>
 
   <!-- Usa lo stesso foglio di stile principale -->
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
   <link rel="stylesheet" href="style.css" />
   <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600&display=swap" rel="stylesheet" />
 
@@ -49,7 +50,7 @@
       left: -30%;
       width: 160%;
       height: 160%;
-      background: radial-gradient(circle at 50% 50%, rgba(255,255,255,0.08), transparent 70%);
+      background: radial-gradient(circle at 50% 50%, rgba(255,255,255,0.09), transparent 70%);
       filter: blur(80px);
       animation: float 8s ease-in-out infinite alternate;
       z-index: 0;
@@ -163,6 +164,34 @@
         animation-direction: reverse;
     }
 
+    .toggle-password {
+      position: absolute;
+      right: 12px;
+      top: 50%;
+      transform: translateY(-50%);
+      background: rgba(255,255,255,0.12);
+      backdrop-filter: blur(6px);
+      border: 1px solid rgba(255,255,255,0.25);
+      color: #fff;
+      border-radius: 50%;
+      width: 32px;
+      height: 32px;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      transition: all 0.25s ease;
+    }
+
+    .toggle-password:hover {
+      background: rgba(255,255,255,0.2);
+      transform: translateY(-50%) scale(1.1);
+      box-shadow: 0 0 8px rgba(15,98,254,0.4);
+    }
+
+    .toggle-password:active {
+      transform: translateY(-50%) scale(0.95);
+    }
   </style>
 </head>
 
@@ -170,22 +199,22 @@
   <div class="login-container" role="main">
     <div class="glass-background" aria-hidden="true"></div>
 
-    <div class="login-box" aria-labelledby="login-title">
-        <h1 id="login-title">Accedi al Garage</h1>
-
-        <input type="text" id="username" placeholder="Nome utente" aria-label="Nome utente" autocomplete="username" />
-        <input type="password" id="password" placeholder="Password" aria-label="Password" autocomplete="current-password" />
-
-        <button class="btn btn-login" id="loginBtn" type="button">Entra</button>
-        <div id="loader" aria-hidden="true"></div>
-        <div id="errorMsg" class="error" role="alert" aria-live="assertive">Username o password errati.</div>
-
-        <p class="footer-text">Benvenuto nel tuo garage virtuale</p>
+    <div class="login-box"> 
+      <h1>Accedi al Garage</h1> 
+      <input type="text" id="username" placeholder="Nome utente" autocomplete="username" /> 
+      <div class="input-wrapper"> 
+        <input type="password" id="password" placeholder="Password" autocomplete="current-password" /> 
+        <button type="button" class="toggle-password" id="togglePassword"><i class="fa-solid fa-eye"></i></button> 
+      </div> 
+      <button class="btn btn-login" id="loginBtn" type="button">Entra</button> 
+      <div id="loader"></div> 
+      <div id="errorMsg" class="error">Username o password errati.</div> 
+      <p class="footer-text">Benvenuto nel garage dei Donatelli. Accedi con le credenziali fornite da Tarantolax.</p> 
     </div>
   </div>
 
   <script>
-    (function() {
+    document.addEventListener('DOMContentLoaded', () => {
       const LOGIN_USER = 'ADMIN2020';
       const LOGIN_PASS = 'dntl00i';
 
@@ -193,6 +222,8 @@
       const passwordEl = document.getElementById('password');
       const loginBtn = document.getElementById('loginBtn');
       const errorMsg = document.getElementById('errorMsg');
+      const loader = document.getElementById('loader');
+      const togglePasswordBtn = document.getElementById('togglePassword');
 
       function showError(text) {
         errorMsg.textContent = text || 'Username o password errati.';
@@ -206,35 +237,45 @@
       }
 
       function handleLogin() {
-        const user = (usernameEl.value || '').trim();
-        const pass = (passwordEl.value || '').trim();
+        const user = usernameEl.value.trim();
+        const pass = passwordEl.value.trim();
 
         if (user === LOGIN_USER && pass === LOGIN_PASS) {
-            loginBtn.style.display = 'none';
-
-            const loader = document.getElementById('loader');
-            loader.style.display = 'block';
-
-            try { localStorage.setItem('logged_user', user); } catch(e){}
-
-            setTimeout(() => window.location.href = 'home.html', 1000);
+          loginBtn.style.display = 'none';
+          loader.style.display = 'block';
+          try { localStorage.setItem('logged_user', user); } catch(e) {}
+          setTimeout(() => window.location.href = 'home.html', 1000);
         } else {
-            showError('Username o password errati.');
+          showError();
         }
-        }
+      }
 
       loginBtn.addEventListener('click', handleLogin);
-
       document.addEventListener('keydown', (e) => {
-        if (e.key === 'Enter') {
-          const active = document.activeElement;
-          if (active && (active.id === 'username' || active.id === 'password')) handleLogin();
+        if (e.key === 'Enter' && (document.activeElement === usernameEl || document.activeElement === passwordEl)) {
+          handleLogin();
         }
       });
 
       usernameEl.addEventListener('input', clearError);
       passwordEl.addEventListener('input', clearError);
-    })();
-  </script>
+
+      // ✅ Bottone mostra/nascondi password
+      if (togglePasswordBtn && passwordEl) {
+        togglePasswordBtn.addEventListener('click', () => {
+          const isHidden = passwordEl.type === 'password';
+          passwordEl.type = isHidden ? 'text' : 'password';
+      
+          togglePasswordBtn.innerHTML = isHidden
+          ? '<i class="fa-solid fa-eye-slash"></i>'
+          : '<i class="fa-solid fa-eye"></i>';
+
+          togglePasswordBtn.style.transform = 'scale(1.2)';
+          setTimeout(() => togglePasswordBtn.style.transform = '', 150);
+        });
+      }
+    });
+</script>
+
 </body>
 </html>
