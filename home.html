@@ -11,17 +11,268 @@
       navigator.serviceWorker.register('sw.js').catch(e => console.warn('SW registration failed', e));
     }
   </script>
+
+  <style>
+    :root {
+      --bg-color: #0d0d0d;
+      --text-color: #fff;
+      --card-bg: rgba(255, 255, 255, 0.05);
+      --btn-bg: rgba(255, 255, 255, 0.1);
+      --btn-hover: rgba(255, 255, 255, 0.25);
+      --neon: rgba(15, 98, 254, 0.6);
+    }
+
+    body.light-mode {
+      --bg-color: #f8f8f8;
+      --text-color: #1a1a1a;
+      --card-bg: rgba(0, 0, 0, 0.05);
+      --btn-bg: rgba(0, 0, 0, 0.1);
+      --btn-hover: rgba(0, 0, 0, 0.25);
+      --neon: rgba(255, 193, 7, 0.8);
+    }
+
+    body {
+      background: var(--bg-color);
+      color: var(--text-color);
+      font-family: 'Poppins', sans-serif;
+      transition: background 0.5s ease, color 0.5s ease;
+    }
+
+    /* NAVBAR */
+    .navbar {
+      text-align: center;
+      padding: 20px 0;
+      color: var(--text-color);
+      text-shadow: 0 0 10px var(--neon);
+      transition: color 0.5s ease, text-shadow 0.5s ease;
+    }
+
+    /* 🔹 Pulsanti sopra */
+    .top-buttons {
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      gap: 10px;
+      margin: 10px auto 15px auto;
+    }
+
+    .profile-btn {
+      padding: 8px 20px;
+      border: none;
+      border-radius: 12px;
+      font-size: 0.95rem;
+      font-weight: 500;
+      color: var(--text-color);
+      background: var(--btn-bg);
+      backdrop-filter: blur(8px);
+      cursor: pointer;
+      transition: all 0.3s ease;
+      box-shadow: 0 0 10px rgba(255,255,255,0.15);
+      text-shadow: 0 0 6px var(--neon);
+      letter-spacing: 0.5px;
+    }
+
+    .profile-btn:hover {
+      background: var(--btn-hover);
+      transform: scale(1.05);
+      box-shadow: 0 0 15px rgba(255,255,255,0.3);
+    }
+
+    .garage {
+      margin-top: 11px !important;
+      transition: background 0.5s ease, color 0.5s ease;
+    }
+
+    /* 🔹 Sidebar profilo */
+    .sidebar {
+      position: fixed;
+      top: 0;
+      left: -320px;
+      width: 280px;
+      height: 100%;
+      background: var(--card-bg);
+      backdrop-filter: blur(10px);
+      box-shadow: 4px 0 25px rgba(0,0,0,0.4);
+      border-right: 1px solid rgba(255,255,255,0.1);
+      color: var(--text-color);
+      transition: left 0.35s ease, background 0.5s ease, color 0.5s ease;
+      z-index: 9999;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      padding-top: 80px; 
+    }
+
+    .sidebar.open {
+      left: 0;
+    }
+
+    .sidebar img {
+      width: 100px;
+      height: 100px;
+      border-radius: 50%;
+      margin-bottom: 15px;
+      box-shadow: 0 0 20px var(--neon);
+      border: 2px solid rgba(255,255,255,0.3);
+      object-fit: cover;
+      transition: box-shadow 0.5s ease;
+    }
+
+    .sidebar h2 {
+      margin: 5px 0;
+      font-size: 1.3rem;
+      text-shadow: 0 0 8px var(--neon);
+      transition: text-shadow 0.5s ease;
+    }
+
+    .sidebar p {
+      font-size: 0.9rem;
+      color: rgba(255,255,255,0.8);
+      margin-bottom: 25px;
+      transition: color 0.5s ease;
+    }
+
+    .sidebar button {
+      width: 80%;
+      margin: 8px 0;
+      padding: 10px;
+      border: none;
+      border-radius: 10px;
+      font-size: 0.9rem;
+      font-weight: 500;
+      background: var(--btn-bg);
+      color: var(--text-color);
+      cursor: pointer;
+      transition: all 0.3s ease;
+      box-shadow: 0 0 10px rgba(255,255,255,0.15);
+    }
+
+    .sidebar button:hover {
+      background: var(--btn-hover);
+      transform: scale(1.05);
+    }
+
+    /* 🔹 Pulsante di chiusura */
+    .sidebar .close-btn {
+      position: absolute;
+      top: 18px;
+      right: 18px;
+      font-size: 1.3rem;
+      background: rgba(255,255,255,0.08);
+      border: 1px solid rgba(255,255,255,0.15);
+      border-radius: 50%;
+      width: 32px;
+      height: 32px;
+      color: var(--text-color);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      cursor: pointer;
+      transition: all 0.3s ease;
+    }
+
+    .sidebar .close-btn:hover {
+      background: var(--btn-hover);
+      box-shadow: 0 0 10px var(--neon);
+      transform: scale(1.1);
+    }
+
+    /* 🔹 Overlay scuro */
+    .overlay {
+      position: fixed;
+      inset: 0;
+      background: rgba(0, 0, 0, 0.4);
+      opacity: 0;
+      visibility: hidden;
+      transition: opacity 0.3s ease;
+      z-index: 9998;
+    }
+
+    .overlay.active {
+      opacity: 1;
+      visibility: visible;
+    }
+
+    /* 🔹 Switch Tema */
+    .theme-switch {
+      position: relative;
+      width: 60px;
+      height: 30px;
+      background: var(--btn-bg);
+      border-radius: 30px;
+      cursor: pointer;
+      transition: background 0.4s ease;
+      margin-bottom: 25px;
+    }
+
+    .theme-switch::before {
+      content: "";
+      position: absolute;
+      top: 3px;
+      left: 4px;
+      width: 24px;
+      height: 24px;
+      background: var(--text-color);
+      border-radius: 50%;
+      box-shadow: 0 0 10px var(--neon);
+      transition: all 0.4s ease;
+    }
+
+    body.light-mode .theme-switch::before {
+      left: 32px;
+      box-shadow: 0 0 10px var(--neon);
+    }
+
+    /* Pulsante principale */   
+    .btn {
+      display: block;
+      margin: 25px auto;
+      padding: 12px 25px;
+      border: none;
+      border-radius: 12px;
+      font-size: 1rem;
+      color: var(--text-color);
+      background: var(--btn-bg);
+      box-shadow: 0 0 10px var(--neon);
+      cursor: pointer;
+      transition: all 0.3s ease;
+    }
+
+    .btn:hover {
+      background: var(--btn-hover);
+      transform: scale(1.05);
+    }
+  </style>
 </head>
+
 <body>
   <nav class="navbar" id="navbar">
     <h1>DONATELLI - Il Garage</h1>
   </nav>
 
+  <div class="top-buttons">
+    <button class="profile-btn" id="profileBtn">👤 Profilo</button>
+  </div>
+
   <div id="garage" class="garage"></div>
+
   <button class="btn" id="goRoulette">Decidi l'auto (o le auto)</button>
 
+  <!-- 🔹 Sidebar profilo -->
+  <div class="sidebar" id="sidebar">
+    <button class="close-btn" id="closeSidebar">✖</button>
+    <img src="images/profile.jpg" alt="Profilo ADMIN2020">
+    <h2 id="username">ADMIN2020</h2>
+    <p id="lastLogin">Ultimo accesso: --</p>
+    <p>Light Mode su questo schermo</p><br>
+    <div class="theme-switch" id="themeSwitch"></div>
+    <button id="logoutFromSidebar">Logout</button>
+  </div>
+
+  <div class="overlay" id="overlay"></div>
+
   <script>
-    // ---------- DATI AUTO  ----------
+    // ---------- DATI AUTO ----------
     const cars = [
       { id:1, brand:"Renault", model:"Clio", plate:"EN 883 ET", seats:5, flag:"🇫🇷", imageFront:"images/Clio_front.jpg", imageRear:"images/Clio_rear.jpg", logo:"logos/Renault.jpg", nationality:"Francia", owner: "Filippo", wiki: "https://it.wikipedia.org/wiki/Renault_Clio_III" },
       { id:2, brand:"Opel", model:"Corsa", plate:"FA 702 KG", seats:5, flag:"🇩🇪", imageFront:"images/Corsa_front.jpg", imageRear:"images/Corsa_rear.jpg", logo:"logos/Opel.jpg", nationality:"Germania", owner: "Luca", wiki: "https://it.wikipedia.org/wiki/Opel_Corsa_E" },
@@ -29,19 +280,25 @@
       { id:4, brand:"Fiat", model:"500", plate:"EC 730 CE", seats:4, flag:"🇮🇹", imageFront:"images/500_front.jpg", imageRear:"images/500_rear.jpg", logo:"logos/Fiat.jpg", nationality:"Italia", owner: "Melany", wiki: "https://it.wikipedia.org/wiki/Fiat_500_(2007)" }
     ];
 
-    // ---------- SCRIVO DATI NEL localStorage (prima di qualsiasi click) ----------
     try {
       localStorage.setItem('cars_data', JSON.stringify(cars));
     } catch (e) {
       console.error('Impossibile scrivere in localStorage:', e);
     }
 
-    // ---------- VARIABILI E RIFERIMENTI ----------
-    let frontMode = false; // default: rear
+    // ---------- VARIABILI ----------
+    let frontMode = false;
     const garageDiv = document.getElementById('garage');
     const goRouletteBtn = document.getElementById('goRoulette');
+    const profileBtn = document.getElementById('profileBtn');
+    const sidebar = document.getElementById('sidebar');
+    const overlay = document.getElementById('overlay');
+    const closeSidebar = document.getElementById('closeSidebar');
+    const logoutFromSidebar = document.getElementById('logoutFromSidebar');
+    const lastLogin = document.getElementById('lastLogin');
+    const themeSwitch = document.getElementById('themeSwitch');
 
-    // ---------- RENDER DEL GARAGE (cards cliccabili) ----------
+    // ---------- RENDER GARAGE ----------
     function renderGarage() {
       garageDiv.innerHTML = '';
 
@@ -51,15 +308,12 @@
         card.style.cursor = 'pointer';
         card.setAttribute('data-id', car.id);
 
-        // immagine
         const img = document.createElement('img');
         img.className = 'car-image';
         img.src = frontMode ? car.imageFront : car.imageRear;
         img.alt = `${car.brand} ${car.model}`;
-        // fallback immagine se non trovata
         img.onerror = () => { img.src = 'images/placeholder.jpg'; };
 
-        // info
         const info = document.createElement('div');
         info.className = 'car-info';
         info.innerHTML = `
@@ -68,27 +322,41 @@
           <p class="seats"><strong>Posti:</strong> ${car.seats}</p>
         `;
 
-        // append
         card.appendChild(img);
         card.appendChild(info);
         garageDiv.appendChild(card);
 
-        // click -> vai a car.html?id=...
         card.addEventListener('click', () => {
-          // assicurati che i dati siano salvati (ridondanza sicura)
           try {
             localStorage.setItem('cars_data', JSON.stringify(cars));
           } catch (e) { console.warn('localStorage write failed on click', e); }
-
-          // naviga alla pagina dettaglio
           window.location.href = `car.html?id=${encodeURIComponent(car.id)}`;
         });
       });
     }
 
-    // ---------- TOGGLE FRONT/REAR AL CLICK SULLA NAVBAR ----------
+    // ---------- TEMA ----------
+    function setTheme(mode) {
+      if (mode === 'light') {
+        document.body.classList.add('light-mode');
+      } else {
+        document.body.classList.remove('light-mode');
+      }
+      localStorage.setItem('theme', mode);
+    }
+
+    // ---------- EVENTI ----------
     document.addEventListener('DOMContentLoaded', () => {
       renderGarage();
+
+      // imposta ultima data di login
+      const now = new Date().toLocaleString('it-IT', { dateStyle: 'full', timeStyle: 'short' });
+      localStorage.setItem('lastLogin', now);
+      lastLogin.textContent = `Ultimo accesso: ${now}`;
+
+      // ripristina tema salvato
+      const savedTheme = localStorage.getItem('theme') || 'dark';
+      setTheme(savedTheme);
 
       const navbar = document.getElementById('navbar');
       navbar.addEventListener('click', () => {
@@ -96,11 +364,35 @@
         renderGarage();
       });
 
-      // bottone roulette
       goRouletteBtn.addEventListener('click', () => {
         location.href = 'roulette.html';
       });
+
+      logoutFromSidebar.addEventListener('click', logout);
+
+      profileBtn.addEventListener('click', () => {
+        sidebar.classList.add('open');
+        overlay.classList.add('active');
+      });
+
+      closeSidebar.addEventListener('click', closeProfile);
+      overlay.addEventListener('click', closeProfile);
+
+      themeSwitch.addEventListener('click', () => {
+        const newTheme = document.body.classList.contains('light-mode') ? 'dark' : 'light';
+        setTheme(newTheme);
+      });
     });
+
+    function closeProfile() {
+      sidebar.classList.remove('open');
+      overlay.classList.remove('active');
+    }
+
+    function logout() {
+      localStorage.removeItem('loggedUser');
+      window.location.href = 'index.html';
+    }
   </script>
 </body>
 </html>
