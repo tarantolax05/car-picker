@@ -240,7 +240,8 @@
 
   <script>
     document.addEventListener('DOMContentLoaded', () => {
-      const LOGIN_USER = 'ADMIN2020';
+      // leggi lo username dinamico ogni volta che la pagina viene caricata
+      const SAVED_USER = localStorage.getItem('saved_username') || 'ADMIN2020';
       const LOGIN_PASS = 'dntl00i';
 
       const usernameEl = document.getElementById('username');
@@ -250,57 +251,58 @@
       const loader = document.getElementById('loader');
       const togglePasswordBtn = document.getElementById('togglePassword');
 
-      function showError(text) {
+      console.log('Login page loaded. accepted username =', SAVED_USER);
+
+      function showError(text){
         errorMsg.textContent = text || 'Username o password errati.';
         errorMsg.classList.remove('show');
         void errorMsg.offsetWidth;
         errorMsg.classList.add('show');
       }
+      function clearError(){ errorMsg.classList.remove('show'); }
 
-      function clearError() {
-        errorMsg.classList.remove('show');
-      }
-
-      function handleLogin() {
+      function handleLogin(){
+        // leggi di nuovo saved_username al momento del login (più robusto)
+        const currentSaved = localStorage.getItem('saved_username') || 'ADMIN2020';
         const user = usernameEl.value.trim();
         const pass = passwordEl.value.trim();
-
-        if (user === LOGIN_USER && pass === LOGIN_PASS) {
+        console.log('Try login with', user, pass ? '***' : '(empty)');
+        if(user === currentSaved && pass === LOGIN_PASS){
           loginBtn.style.display = 'none';
-          loader.style.display = 'block';
-          try { localStorage.setItem('logged_user', user); } catch(e) {}
-          setTimeout(() => window.location.href = 'home.html', 1000);
+          if(loader) loader.style.display = 'block';
+          try{ localStorage.setItem('logged_user', user); } catch(e){}
+          setTimeout(()=> window.location.href = 'home.html', 700);
         } else {
           showError();
         }
       }
 
       loginBtn.addEventListener('click', handleLogin);
-      document.addEventListener('keydown', (e) => {
-        if (e.key === 'Enter' && (document.activeElement === usernameEl || document.activeElement === passwordEl)) {
-          handleLogin();
-        }
+      document.addEventListener('keydown', (e)=> {
+        if(e.key === 'Enter' && (document.activeElement === usernameEl || document.activeElement === passwordEl)) handleLogin();
       });
 
       usernameEl.addEventListener('input', clearError);
       passwordEl.addEventListener('input', clearError);
 
-      // ✅ Bottone mostra/nascondi password
-      if (togglePasswordBtn && passwordEl) {
-        togglePasswordBtn.addEventListener('click', () => {
+      if(togglePasswordBtn && passwordEl){
+        togglePasswordBtn.addEventListener('click', ()=>{
           const isHidden = passwordEl.type === 'password';
           passwordEl.type = isHidden ? 'text' : 'password';
-      
-          togglePasswordBtn.innerHTML = isHidden
-          ? '<i class="fa-solid fa-eye-slash"></i>'
-          : '<i class="fa-solid fa-eye"></i>';
-
-          togglePasswordBtn.style.transform = 'scale(1.2)';
-          setTimeout(() => togglePasswordBtn.style.transform = '', 150);
+          togglePasswordBtn.innerHTML = isHidden ? '👁' : '🙈';
+          togglePasswordBtn.style.transform = 'scale(1.15)';
+          setTimeout(()=> togglePasswordBtn.style.transform = '', 150);
         });
       }
+
+      // prefill username field to help user
+      usernameEl.value = SAVED_USER;
+      // also show small hint (optional)
+      const hint = document.getElementById('savedHint');
+      if(hint) hint.textContent = `Accesso con: ${SAVED_USER}`;
     });
-</script>
+  </script>
+
 
 </body>
 </html>

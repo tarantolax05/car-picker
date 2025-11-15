@@ -56,7 +56,7 @@
       margin: 10px auto 15px auto;
     }
 
-    .profile-btn {
+    .profile-btn, .pdf-btn {
       padding: 8px 20px;
       border: none;
       border-radius: 12px;
@@ -72,7 +72,7 @@
       letter-spacing: 0.5px;
     }
 
-    .profile-btn:hover {
+    .profile-btn:hover, .pdf-btn:hover {
       background: var(--btn-hover);
       transform: scale(1.05);
       box-shadow: 0 0 15px rgba(255,255,255,0.3);
@@ -116,6 +116,38 @@
       border: 2px solid rgba(255,255,255,0.3);
       object-fit: cover;
       transition: box-shadow 0.5s ease;
+    }
+
+    .username-container {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .edit-username {
+      display: none;
+      margin-top: 10px;
+      text-align: center;
+      width: 100%;
+    }
+
+    .edit-username input {
+      padding: 8px 10px;
+      border-radius: 10px;
+      border: none;
+      outline: none;
+      background: var(--btn-bg);
+      color: var(--text-color);
+      font-size: 0.9rem;
+      width: 80%;
+      text-align: center;
+      box-shadow: 0 0 10px rgba(255,255,255,0.1);
+      transition: all 0.3s ease;
+    }
+
+    .edit-username input:focus {
+      box-shadow: 0 0 12px var(--neon);
+      transform: scale(1.02);
     }
 
     .sidebar h2 {
@@ -242,6 +274,49 @@
       background: var(--btn-hover);
       transform: scale(1.05);
     }
+
+    .slider {
+      position: absolute;
+      cursor: pointer;
+      top: 0; left: 0;
+      right: 0; bottom: 0;
+      background-color: #ccc;
+      transition: 0.4s;
+      border-radius: 34px;
+    }
+
+    .slider:before {
+      position: absolute;
+      content: "";
+      height: 22px;
+      width: 22px;
+      left: 3px;
+      bottom: 3px;
+      background-color: white;
+      transition: 0.4s;
+      border-radius: 50%;
+    }
+
+    input:checked + .slider {
+      background-color: #0f62fe;
+    }
+
+    input:checked + .slider:before {
+      transform: translateX(26px);
+    }
+    
+    .edit-icon {
+      font-size: 1rem;
+      cursor: pointer;
+      opacity: 0.8;
+      transition: all 0.3s ease;
+    }
+
+    .edit-icon:hover {
+      transform: scale(1.1);
+      opacity: 1;
+      text-shadow: 0 0 6px var(--neon);
+    }
   </style>
 </head>
 
@@ -252,6 +327,7 @@
 
   <div class="top-buttons">
     <button class="profile-btn" id="profileBtn">👤 Profilo</button>
+    <button class="pdf-btn" id="pdfBtn">PDF riassuntivo</button>
   </div>
 
   <div id="garage" class="garage"></div>
@@ -262,7 +338,13 @@
   <div class="sidebar" id="sidebar">
     <button class="close-btn" id="closeSidebar">✖</button>
     <img src="images/profile.jpg" alt="Profilo ADMIN2020">
-    <h2 id="username">ADMIN2020</h2>
+    <div class="username-container">
+      <h2 id="username">ADMIN2020</h2>
+      <span class="edit-icon" id="editUsername">✏️</span>
+    </div>
+    <div class="edit-username" id="editUsernameBox">
+      <input type="text" id="usernameInput" placeholder="Nuovo username">
+    </div>
     <p id="lastLogin">Ultimo accesso: --</p>
     <p>Light Mode su questo schermo</p><br>
     <div class="theme-switch" id="themeSwitch"></div>
@@ -272,7 +354,7 @@
   <div class="overlay" id="overlay"></div>
 
   <script>
-    // ---------- DATI AUTO ----------
+    /* HOME - gestione sidebar, username editabile, tema, ecc. */
     const cars = [
       { id:1, brand:"Renault", model:"Clio", plate:"EN 883 ET", seats:5, flag:"🇫🇷", imageFront:"images/Clio_front.jpg", imageRear:"images/Clio_rear.jpg", logo:"logos/Renault.jpg", nationality:"Francia", owner: "Filippo", wiki: "https://it.wikipedia.org/wiki/Renault_Clio_III" },
       { id:2, brand:"Opel", model:"Corsa", plate:"FA 702 KG", seats:5, flag:"🇩🇪", imageFront:"images/Corsa_front.jpg", imageRear:"images/Corsa_rear.jpg", logo:"logos/Opel.jpg", nationality:"Germania", owner: "Luca", wiki: "https://it.wikipedia.org/wiki/Opel_Corsa_E" },
@@ -280,119 +362,147 @@
       { id:4, brand:"Fiat", model:"500", plate:"EC 730 CE", seats:4, flag:"🇮🇹", imageFront:"images/500_front.jpg", imageRear:"images/500_rear.jpg", logo:"logos/Fiat.jpg", nationality:"Italia", owner: "Melany", wiki: "https://it.wikipedia.org/wiki/Fiat_500_(2007)" }
     ];
 
-    try {
-      localStorage.setItem('cars_data', JSON.stringify(cars));
-    } catch (e) {
-      console.error('Impossibile scrivere in localStorage:', e);
-    }
+    try { localStorage.setItem('cars_data', JSON.stringify(cars)); } catch (e) { console.error('localStorage error', e); }
 
-    // ---------- VARIABILI ----------
     let frontMode = false;
+
+    /* DOM refs */
     const garageDiv = document.getElementById('garage');
     const goRouletteBtn = document.getElementById('goRoulette');
     const profileBtn = document.getElementById('profileBtn');
+    const pdfBtn = document.getElementById('pdfBtn');
     const sidebar = document.getElementById('sidebar');
     const overlay = document.getElementById('overlay');
     const closeSidebar = document.getElementById('closeSidebar');
     const logoutFromSidebar = document.getElementById('logoutFromSidebar');
     const lastLogin = document.getElementById('lastLogin');
-    const themeSwitch = document.getElementById('themeSwitch');
+    const themeSwitch = document.getElementById('themeSwitch'); // optional
+    const usernameDisplay = document.getElementById('username');
+    const editIcon = document.getElementById('editUsername');
+    const editBox = document.getElementById('editUsernameBox');
+    const usernameInput = document.getElementById('usernameInput');
 
-    // ---------- RENDER GARAGE ----------
-    function renderGarage() {
+    /* render garage */
+    function renderGarage(){
       garageDiv.innerHTML = '';
-
       cars.forEach(car => {
         const card = document.createElement('div');
         card.className = 'car-card';
-        card.style.cursor = 'pointer';
         card.setAttribute('data-id', car.id);
+        card.style.cursor = 'pointer';
 
         const img = document.createElement('img');
         img.className = 'car-image';
         img.src = frontMode ? car.imageFront : car.imageRear;
         img.alt = `${car.brand} ${car.model}`;
-        img.onerror = () => { img.src = 'images/placeholder.jpg'; };
+        img.onerror = () => img.src = 'images/placeholder.jpg';
 
         const info = document.createElement('div');
         info.className = 'car-info';
-        info.innerHTML = `
-          <h3>${car.flag} ${car.brand} ${car.model}</h3>
-          <p class="plate"><strong>Targa:</strong> ${car.plate}</p>
-          <p class="seats"><strong>Posti:</strong> ${car.seats}</p>
-        `;
+        info.innerHTML = `<h3>${car.flag} ${car.brand} ${car.model}</h3>
+                          <p class="plate"><strong>Targa:</strong> ${car.plate}</p>
+                          <p class="seats"><strong>Posti:</strong> ${car.seats}</p>`;
 
         card.appendChild(img);
         card.appendChild(info);
         garageDiv.appendChild(card);
 
         card.addEventListener('click', () => {
-          try {
-            localStorage.setItem('cars_data', JSON.stringify(cars));
-          } catch (e) { console.warn('localStorage write failed on click', e); }
+          try { localStorage.setItem('cars_data', JSON.stringify(cars)); } catch(e){console.warn(e);}
           window.location.href = `car.html?id=${encodeURIComponent(car.id)}`;
         });
       });
     }
 
-    // ---------- TEMA ----------
-    function setTheme(mode) {
-      if (mode === 'light') {
-        document.body.classList.add('light-mode');
-      } else {
-        document.body.classList.remove('light-mode');
-      }
+    // Per switchare il tema in light mode
+    function setTheme(mode){
+      if(mode === 'light') document.body.classList.add('light-mode');
+      else document.body.classList.remove('light-mode');
       localStorage.setItem('theme', mode);
     }
+    /* Gestisco il cambio password (salvata in Localstorage) */
+    function loadUsername(){
+      const saved = localStorage.getItem('saved_username') || 'ADMIN2020';
+      usernameDisplay.textContent = saved;
+      console.log('Loaded username:', saved);
+    }
+    function showSaveFeedback() {
+      // piccolo check a destra dello username (creiamo elemento temporaneo)
+      const check = document.createElement('span');
+      check.textContent = ' ✓';
+      check.style.color = '#4caf50';
+      check.style.opacity = '0';
+      check.style.transition = 'opacity 0.25s ease, transform 0.25s ease';
+      usernameDisplay.appendChild(check);
+      requestAnimationFrame(()=> { check.style.opacity = '1'; check.style.transform = 'translateY(-2px)'; });
+      setTimeout(()=> {
+        check.style.opacity = '0';
+        check.style.transform = 'translateY(-6px)';
+        setTimeout(()=> check.remove(), 300);
+      }, 1200);
+    }
 
-    // ---------- EVENTI ----------
-    document.addEventListener('DOMContentLoaded', () => {
+    function enableUsernameEdit(){
+      editBox.style.display = 'block';
+      usernameInput.value = usernameDisplay.textContent;
+      usernameInput.focus();
+      usernameInput.select();
+    }
+
+    function saveUsername(){
+      const newName = usernameInput.value.trim();
+      const old = usernameDisplay.textContent;
+      if(newName && newName !== old){
+        localStorage.setItem('saved_username', newName);
+        localStorage.setItem('logged_user', newName);
+        usernameDisplay.textContent = newName;
+        console.log('Saved new username:', newName);
+        showSaveFeedback();
+      }
+      editBox.style.display = 'none';
+    }
+
+    /* events */
+    document.addEventListener('DOMContentLoaded', ()=> {
       renderGarage();
+      loadUsername();
 
-      // imposta ultima data di login
-      const now = new Date().toLocaleString('it-IT', { dateStyle: 'full', timeStyle: 'short' });
+      // last login
+      const now = new Date().toLocaleString('it-IT', { dateStyle:'full', timeStyle:'short' });
       localStorage.setItem('lastLogin', now);
       lastLogin.textContent = `Ultimo accesso: ${now}`;
 
-      // ripristina tema salvato
+      // restore theme
       const savedTheme = localStorage.getItem('theme') || 'dark';
       setTheme(savedTheme);
 
-      const navbar = document.getElementById('navbar');
-      navbar.addEventListener('click', () => {
-        frontMode = !frontMode;
-        renderGarage();
-      });
+      document.getElementById('navbar').addEventListener('click', ()=> { frontMode = !frontMode; renderGarage(); });
+      if(goRouletteBtn) goRouletteBtn.addEventListener('click', ()=> location.href = 'roulette.html');
 
-      goRouletteBtn.addEventListener('click', () => {
-        location.href = 'roulette.html';
-      });
+      if(profileBtn) profileBtn.addEventListener('click', ()=> { sidebar.classList.add('open'); overlay.classList.add('active'); });
+      if(closeSidebar) closeSidebar.addEventListener('click', closeProfile);
+      if(overlay) overlay.addEventListener('click', closeProfile);
+      if(logoutFromSidebar) logoutFromSidebar.addEventListener('click', logout);
 
-      logoutFromSidebar.addEventListener('click', logout);
-
-      profileBtn.addEventListener('click', () => {
-        sidebar.classList.add('open');
-        overlay.classList.add('active');
-      });
-
-      closeSidebar.addEventListener('click', closeProfile);
-      overlay.addEventListener('click', closeProfile);
-
-      themeSwitch.addEventListener('click', () => {
+      if(themeSwitch) themeSwitch.addEventListener('click', ()=> {
         const newTheme = document.body.classList.contains('light-mode') ? 'dark' : 'light';
         setTheme(newTheme);
       });
+
+      /* username edit */
+      if(editIcon) editIcon.addEventListener('click', enableUsernameEdit);
+      if(usernameInput){
+        usernameInput.addEventListener('blur', saveUsername);
+        usernameInput.addEventListener('keydown', e => { if(e.key === 'Enter') saveUsername(); });
+      }
+
+      console.log('Home loaded. saved_username=', localStorage.getItem('saved_username'));
     });
 
-    function closeProfile() {
-      sidebar.classList.remove('open');
-      overlay.classList.remove('active');
-    }
-
-    function logout() {
-      localStorage.removeItem('loggedUser');
-      window.location.href = 'index.html';
-    }
+    /* helpers */
+    function closeProfile(){ sidebar.classList.remove('open'); overlay.classList.remove('active'); }
+    function logout(){ localStorage.removeItem('logged_user'); window.location.href = 'index.html'; }
   </script>
+
 </body>
 </html>
