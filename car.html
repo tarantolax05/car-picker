@@ -7,105 +7,198 @@
   <link rel="stylesheet" href="style.css">
   <style>
     body {
-        background: linear-gradient(135deg,#0f2027,#203a43,#2c5364);
-        color: #fff;
-        font-family: 'Poppins', sans-serif;
-        margin:0;
-        padding:20px;
-        overflow-x:hidden; 
-    }
-    .container {
-        max-width: 900px; 
-        margin: 36px auto; 
-        background: rgba(255,255,255,0.03); 
-        border-radius: 12px; 
-        padding: 18px; 
-        box-shadow: 0 6px 30px rgba(0,0,0,0.4); 
-        opacity: 0;
-        transform: scale(0.95);
-        animation: fadeZoomIn 0.8s ease-out forwards;
-    }
+    background: radial-gradient(circle at 20% 20%, #0d1b2a, #08141f 60%, #050c14);
+    background-size: 200% 200%;
+    animation: bgShift 15s ease-in-out infinite;
+    color: #fff;
+    font-family: 'Poppins', sans-serif;
+    margin:0;
+    padding:20px;
+    overflow-x:hidden;
+}
 
-    @keyframes fadeZoomIn {
-        from {
-            opacity: 0;
-            transform: scale(0.95);
-        }
-        to {
-            opacity: 1;
-            transform: scale(1);
-        }
-    }
-    .top { 
-        display:flex; 
-        gap:20px; 
-        align-items:flex-start; 
-        flex-wrap:wrap; 
-    }
-    .img-wrap {
-        flex: 1 1 320px; 
-    }
-    .img-wrap img { 
-        width:100%; 
-        border-radius: 10px; 
-        object-fit: cover; 
-    }
-    .info { 
-        flex: 1 1 320px; 
-    }
-    .info h1 { 
-        margin:0 0 10px 0; 
-        font-size: 1.6rem; 
-    }
-    .info p { 
-        margin:8px 0;
-        opacity:0.95; 
-    }
-    .logo { 
-        margin-top:12px; 
-    }
-    .back { 
-        display:inline-block;
-        position: relative;
-        z-index: 50;  
-        margin-top:18px; 
-        padding:10px 16px; 
-        border-radius:10px; 
-        background: rgba(255,255,255,0.08) 220ms ease; 
-        color:#fff; 
-        text-decoration:none;
-        font-weight: 600;
-        box-shadow: 0 4px 14px rgba(0,0,0,0.35);
-        transition: transform 220ms cubic-bezier(.2,.9,.2,1), 
-                box-shadow 220ms ease, 
-                opacity 220ms ease;
-        -webkit-tap-highlight-color: transparent;
-        will-change: transform, box-shadow, opacity; 
-    }
-    .back:hover {
-        background: linear-gradient(180deg, rgba(15, 98, 254, 0.25), rgba(15,98,254,0.51));
-        transform: translateY(-3px) scale(1.05);
-        box-shadow: 0 10px 30px rgba(15,98,254,0.18);
-        border: 1px solid rgba(255,255,255,0.28);
+@keyframes bgShift {
+    0% { background-position: 0% 0%; filter: brightness(1); }
+    50% { background-position: 100% 100%; filter: brightness(1.07); }
+    100% { background-position: 0% 0%; filter: brightness(1); }
+}
+
+/* --- CARD PRINCIPALE --- */
+.container {
+    max-width: 900px;
+    margin: 48px auto;
+    padding: 28px;
+    background: rgba(255,255,255,0.08);
+    backdrop-filter: blur(28px) saturate(180%);
+    border-radius: 26px;
+    border: 1px solid rgba(255,255,255,0.16);
+    box-shadow:
+        inset 0 0 40px rgba(255,255,255,0.05),
+        0 25px 60px rgba(0,0,0,0.55),
+        0 0 22px rgba(0,180,255,0.15);
+    opacity: 0;
+    transform: translateY(28px) scale(.95);
+    animation: panelEnter 1s cubic-bezier(.16,.84,.44,1) forwards;
+}
+
+@keyframes panelEnter {
+    to {
         opacity: 1;
+        transform: translateY(0) scale(1);
     }
-    .back:active {
-        transform: translateY(0) scale(0.99);
-        box-shadow: 0 6px 18px rgba(0,0,0,0.45);
-    }
-    .wiki-link {
-        display: inline-block;
-        margin-top: 8px;
-        color: #4fc3f7;
-        text-decoration: none;
-        font-weight: 600;
-        transition: all 0.25s ease;
-    }
-    .wiki-link:hover {
-        color: #81d4fa;
-        text-shadow: 0 0 6px rgba(79, 195, 247, 0.5);
-        transform: scale(1.05);
-    }
+}
+
+/* --- LAYOUT --- */
+.top { 
+    display:flex; 
+    gap:28px; 
+    align-items:flex-start; 
+    flex-wrap:wrap; 
+}
+
+/* --- IMMAGINE AUTO CON EFFETTI 3D PIÙ FORTI --- */
+.img-wrap {
+    flex: 1 1 340px;
+    position: relative;
+    border-radius: 20px;
+    overflow: hidden;
+    transform-style: preserve-3d;
+    transition: transform .55s cubic-bezier(.22,.61,.36,1), filter .35s ease;
+    filter: drop-shadow(0 6px 28px rgba(0,0,0,0.55));
+}
+
+.img-wrap:hover {
+    transform: perspective(1000px) rotateY(10deg) rotateX(4deg) scale(1.06);
+    filter: drop-shadow(0 10px 40px rgba(0,180,255,0.35));
+}
+
+.img-wrap img { 
+    width:100%; 
+    object-fit: cover;
+    border-radius: 20px;
+}
+
+/* --- SHINE MIGLIORATO --- */
+.img-wrap::after {
+    content:"";
+    position:absolute;
+    top:-120%;
+    left:-180%;
+    width:330%;
+    height:330%;
+    background: linear-gradient(
+        130deg,
+        transparent 65%,
+        rgba(255,255,255,0.22),
+        transparent 85%
+    );
+    animation: imgShine 4.5s ease-in-out infinite;
+    pointer-events:none;
+    opacity:.85;
+}
+
+@keyframes imgShine {
+    0% { transform: translate(-60%,-70%) rotate(18deg); }
+    50% { transform: translate(70%,70%) rotate(18deg); }
+    100% { transform: translate(-60%,-70%) rotate(18deg); }
+}
+
+/* --- INFO PANEL --- */
+.info { 
+    flex: 1 1 320px;
+    animation: contentFade .9s ease forwards .2s;
+    transform: translateY(16px);
+    opacity:0;
+}
+
+@keyframes contentFade {
+    to { opacity:1; transform: translateY(0); }
+}
+
+/* --- TITOLI E TESTI --- */
+.info h1 { 
+    margin:0 0 16px 0; 
+    font-size: 2.2rem; 
+    font-weight: 700;
+    text-shadow:
+        0 0 22px rgba(0,180,255,0.55),
+        0 0 12px rgba(0,180,255,0.35);
+    letter-spacing: .5px;
+}
+
+.info p { 
+    margin:10px 0;
+    opacity:0.95; 
+    font-size: 1.1rem;
+    line-height: 1.55;
+}
+
+/* --- BOTTONE TORNA INDIETRO --- */
+.back { 
+    display:inline-block;
+    margin-top:18px; 
+    padding:14px 26px; 
+    border-radius:14px;
+    background: rgba(255,255,255,0.10);
+    border: 1px solid rgba(255,255,255,0.18);
+    font-weight:600;
+    text-decoration:none;
+    color:#fff; 
+    position:relative;
+    overflow:hidden;
+    letter-spacing:.35px;
+    transition: all .35s ease;
+    backdrop-filter: blur(6px);
+}
+
+.back::before {
+    content:"";
+    position:absolute;
+    top:0;
+    left:-100%;
+    width:50%;
+    height:100%;
+    background: linear-gradient(120deg, transparent, rgba(255,255,255,0.55), transparent);
+    transition: .65s ease;
+}
+
+.back:hover::before {
+    left:140%;
+}
+
+.back:hover {
+    transform: translateY(-5px) scale(1.04);
+    box-shadow:
+        0 14px 40px rgba(0,160,255,0.35),
+        0 0 14px rgba(0,160,255,0.4);
+}
+
+/* --- LINK WIKI UPGRADE --- */
+.wiki-link {
+    margin-top: 10px;
+    color: #96eaff;
+    text-decoration: none;
+    font-weight:600;
+    position:relative;
+    transition: .30s ease;
+}
+
+.wiki-link:hover {
+    color: #d0faff;
+    transform: scale(1.07) translateX(4px);
+    text-shadow: 0 0 16px rgba(110,220,255,0.9);
+}
+
+/* --- TARGA --- */
+.targa img {
+    transition: transform .4s ease, filter .4s ease;
+}
+
+.targa img:hover {
+    transform: scale(1.06);
+    filter: drop-shadow(0 0 12px rgba(0,180,255,0.4));
+}
+
   </style>
 </head>
 <body>
@@ -176,6 +269,14 @@
       renderDetail(car);
     });
   </script>
+  <script>
+    document.addEventListener("mousemove", e => {
+        const x = (window.innerWidth / 2 - e.clientX) / 90;
+        const y = (window.innerHeight / 2 - e.clientY) / 90;
+        document.body.style.setProperty("--tiltY", x + "deg");
+        document.body.style.setProperty("--tiltX", -y + "deg");
+    });
+</script>
 </body>
 <script>
   document.addEventListener("DOMContentLoaded", () => {
