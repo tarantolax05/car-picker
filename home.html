@@ -361,7 +361,8 @@
       { id:1, brand:"Renault", model:"Clio", plate:"EN 883 ET", seats:5, flag:"🇫🇷", imageFront:"images/Clio_front.jpg", imageRear:"images/Clio_rear.jpg", logo:"logos/Renault.jpg", nationality:"Francia", owner: "Filippo", wiki: "https://it.wikipedia.org/wiki/Renault_Clio_III" },
       { id:2, brand:"Opel", model:"Corsa", plate:"FA 702 KG", seats:5, flag:"🇩🇪", imageFront:"images/Corsa_front.jpg", imageRear:"images/Corsa_rear.jpg", logo:"logos/Opel.jpg", nationality:"Germania", owner: "Luca", wiki: "https://it.wikipedia.org/wiki/Opel_Corsa_E" },
       { id:3, brand:"Volkswagen", model:"Polo", plate:"DN 482 KN", seats:5, flag:"🇩🇪", imageFront:"images/Polo_front.jpg", imageRear:"images/Polo_rear.jpg", logo:"logos/Volkswagen.jpg", nationality:"Germania", owner: "Daniele", wiki: "https://it.wikipedia.org/wiki/Volkswagen_Polo_IV" },
-      { id:4, brand:"Fiat", model:"500", plate:"EC 730 CE", seats:4, flag:"🇮🇹", imageFront:"images/500_front.jpg", imageRear:"images/500_rear.jpg", logo:"logos/Fiat.jpg", nationality:"Italia", owner: "Melany", wiki: "https://it.wikipedia.org/wiki/Fiat_500_(2007)" }
+      { id:4, brand:"Fiat", model:"500", plate:"EC 730 CE", seats:4, flag:"🇮🇹", imageFront:"images/500_front.jpg", imageRear:"images/500_rear.jpg", logo:"logos/Fiat.jpg", nationality:"Italia", owner: "Melany", wiki: "https://it.wikipedia.org/wiki/Fiat_500_(2007)" },
+      { id:5, brand:"Kia", model:"Sportage", plate:"FJ 620 EL", seats:5, flag:"🇰🇷", imageFront:"images/Sportage_front.jpg", imageRear:"images/Sportage_rear.jpg", logo:"logos/Kia.jpg", nationality:"Corea", owner: "Rebecca", wiki: "https://it.wikipedia.org/wiki/Kia_Sportage" }
     ];
 
     try { localStorage.setItem('cars_data', JSON.stringify(cars)); } catch (e) { console.error('localStorage error', e); }
@@ -529,11 +530,11 @@
         didDrawPage: (data) => {}
       });
       const finalY = doc.lastAutoTable.finalY;
-      doc.setFontSize(10);
-      doc.text("• Ultimo download: " + new Date().toLocaleString(), 14, finalY + 20);
       doc.setFontSize(7.5);
       doc.text("<< Garage Donatelli: divertimento all'avanguardia e senza confronti. >>",
         pageWidth / 2, finalY + 10, { align: "center" });
+      doc.setFontSize(10);
+      doc.text("• Ultimo download: " + new Date().toLocaleString(), 14, finalY + 20);
       doc.save("GARAGE_DONATELLI.pdf");
     });
   </script>

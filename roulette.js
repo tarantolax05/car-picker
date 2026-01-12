@@ -2,7 +2,8 @@ let cars = [
   { brand: "Renault", logo: "logos/Renault.jpg" },
   { brand: "Opel", logo: "logos/Opel.jpg" },
   { brand: "Volkswagen", logo: "logos/Volkswagen.jpg" },
-  { brand: "Fiat", logo: "logos/Fiat.jpg" }
+  { brand: "Fiat", logo: "logos/Fiat.jpg" },
+  { brand: "Kia", logo: "logos/Kia.jpg" }
 ];
 
 let spinning = false;
