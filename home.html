@@ -68,7 +68,7 @@
       margin: 10px auto 15px auto;
     }
 
-    .profile-btn, .pdf-btn {
+    .profile-btn, .pdf-btn, .sorting-btn {
       padding: 8px 20px;
       border: none;
       border-radius: 12px;
@@ -84,7 +84,7 @@
       letter-spacing: 0.5px;
     }
 
-    .profile-btn:hover, .pdf-btn:hover {
+    .profile-btn:hover, .pdf-btn:hover, .sorting-btn:hover {
       background: var(--btn-hover);
       transform: scale(1.05);
       box-shadow: 0 0 15px rgba(255,255,255,0.3);
@@ -339,6 +339,13 @@
   <div class="top-buttons">
     <button class="profile-btn" id="profileBtn">👤 Profilo</button>
     <button class="pdf-btn" id="pdfBtn">PDF riassuntivo</button>
+    <select class="sorting-btn" id="SortingView">
+      <option value="">Ordina auto…</option>
+      <option value="plate-asc">Targa crescente</option>
+      <option value="plate-desc">Targa decrescente</option>
+      <option value="owner-asc">Proprietario crescente</option>
+      <option value="model-asc">Nome auto crescente</option>
+    </select>
   </div><br>
   <div id="garage" class="garage"></div>
 
@@ -365,13 +372,13 @@
 
   <script>
     /* HOME - gestione sidebar, username editabile, tema, ecc. */
+    const CarModelNotEqualToReal = "L'auto mostrata si riferisce ad un modello rilasciato precedentemente o successivamente rispetto a quello reale, causa indisponibilità del packaging offerto dal software generativo di immagini. Pertanto, al fine di non generare un disavanzo nell'inserzione, si propone questo surrogato.";
     const cars = [
       { id:1, brand:"Renault", model:"Clio", plate:"EN 883 ET", seats:5, flag:"🇫🇷", imageFront:"images/Clio_front.jpg", imageRear:"images/Clio_rear.jpg", logo:"logos/Renault.jpg", nationality:"Francia", owner: "Filippo", wiki: "https://it.wikipedia.org/wiki/Renault_Clio_III", info:""},
       { id:2, brand:"Opel", model:"Corsa", plate:"FA 702 KG", seats:5, flag:"🇩🇪", imageFront:"images/Corsa_front.jpg", imageRear:"images/Corsa_rear.jpg", logo:"logos/Opel.jpg", nationality:"Germania", owner: "Luca", wiki: "https://it.wikipedia.org/wiki/Opel_Corsa_E", info:"" },
       { id:3, brand:"Volkswagen", model:"Polo", plate:"DN 482 KN", seats:5, flag:"🇩🇪", imageFront:"images/Polo_front.jpg", imageRear:"images/Polo_rear.jpg", logo:"logos/Volkswagen.jpg", nationality:"Germania", owner: "Daniele", wiki: "https://it.wikipedia.org/wiki/Volkswagen_Polo_IV", info:""},
       { id:4, brand:"Fiat", model:"500", plate:"EC 730 CE", seats:4, flag:"🇮🇹", imageFront:"images/500_front.jpg", imageRear:"images/500_rear.jpg", logo:"logos/Fiat.jpg", nationality:"Italia", owner: "Melany", wiki: "https://it.wikipedia.org/wiki/Fiat_500_(2007)", info:""},
-      { id:5, brand:"Lancia", model:"Ypsilon", plate:"CC 791 MD", seats:5, flag:"🇮🇹", imageFront:"images/Ypsilon_front.jpg", imageRear:"images/Ypsilon_rear.jpg", logo:"logos/Lancia.jpg", nationality:"Italia", owner: "Rebecca", wiki: "https://it.wikipedia.org/wiki/Lancia_Y", info:"L'auto mostrata " +
-        "si riferisce ad un modello rilasciato precedentemente o successivamente rispetto a quello reale, causa indisponibilità del packaging offerto dal software generativo di immagini. Pertanto, al fine di non lasciare un disavanzo nell'inserzione, si propone questo surrogato."}
+      { id:5, brand:"Lancia", model:"Ypsilon", plate:"CC 791 MD", seats:5, flag:"🇮🇹", imageFront:"images/Ypsilon_front.jpg", imageRear:"images/Ypsilon_rear.jpg", logo:"logos/Lancia.jpg", nationality:"Italia", owner: "Rebecca", wiki: "https://it.wikipedia.org/wiki/Lancia_Y", info:CarModelNotEqualToReal}
     ];
 
     try { localStorage.setItem('cars_data', JSON.stringify(cars)); } catch (e) { console.error('localStorage error', e); }
@@ -393,6 +400,7 @@
     const editIcon = document.getElementById('editUsername');
     const editBox = document.getElementById('editUsernameBox');
     const usernameInput = document.getElementById('usernameInput');
+    const Sorting = document.getElementById('SortingView')
 
     /* render garage */
     function renderGarage(){
@@ -425,7 +433,29 @@
         });
       });
     }
+    Sorting.addEventListener("change", () => {
+      switch (Sorting.value) {
 
+        case "plate-asc":
+          cars.sort((a,b) => a.plate.localeCompare(b.plate));
+          break;
+
+        case "plate-desc":
+          cars.sort((a,b) => b.plate.localeCompare(a.plate));
+          break;
+
+        case "owner-asc":
+          cars.sort((a,b) => a.owner.localeCompare(b.owner));
+          break;
+
+        case "model-asc":
+          cars.sort((a,b) =>
+            `${a.brand} ${a.model}`.localeCompare(`${b.brand} ${b.model}`)
+          );
+          break;
+      }
+      renderGarage();
+    })
     // Per switchare il tema in light mode
     function setTheme(mode){
       if(mode === 'light') document.body.classList.add('light-mode');
