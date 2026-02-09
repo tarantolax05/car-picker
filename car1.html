@@ -179,7 +179,7 @@ body {
 </head>
 <body>
   <div class="container" id="detailContainer">
-    <a class="back" href="home.html">← Torna al Garage</a>
+    <a class="back" href="home1.html">← Torna al Garage</a>
     <br><br>
     <div id="detailContent"></div>
   </div>
@@ -198,7 +198,7 @@ body {
         }
 
         // Costruisce automaticamente il percorso dell'immagine targa 3D
-        const plateImg = `images/${car.model}_plate.jpg`;
+        const plateImg = `images-01/${car.model}_plate.jpg`;
 
         target.innerHTML = `
             <div class="top">
@@ -225,7 +225,7 @@ body {
 
     document.addEventListener('DOMContentLoaded', () => {
       const id = getQueryParam('id');
-      const CarModelNotEqualToReal = "L'auto mostrata si riferisce ad un modello rilasciato precedentemente o successivamente rispetto a quello reale, causa indisponibilità del packaging offerto dal software generativo di immagini. Pertanto, al fine di non generare un disavanzo nell'inserzione, si propone questo surrogato.";
+      const CarModelNotReallyOwned = "L'auto mostrata si riferisce ad un modello aziendale ad uso promiscuo, non personalmente posseduto da chi viene designato come proprietario, il quale però adopera il mezzo.";
       let carsData = [];
 
       try {
@@ -237,11 +237,9 @@ body {
 
       if (!carsData || carsData.length === 0) {
         carsData = [
-          { id:1, brand:"Renault", model:"Clio", plate:"EN 883 ET", seats:5, flag:"🇫🇷", imageFront:"images/Clio_front.jpg", imageRear:"images/Clio_rear.jpg", logo:"logos/Renault.jpg", nationality:"Francia", owner: "Filippo", wiki: "https://it.wikipedia.org/wiki/Renault_Clio_III", info:""},
-          { id:2, brand:"Opel", model:"Corsa", plate:"FA 702 KG", seats:5, flag:"🇩🇪", imageFront:"images/Corsa_front.jpg", imageRear:"images/Corsa_rear.jpg", logo:"logos/Opel.jpg", nationality:"Germania", owner: "Luca", wiki: "https://it.wikipedia.org/wiki/Opel_Corsa_E", info:"" },
-          { id:3, brand:"Volkswagen", model:"Polo", plate:"DN 482 KN", seats:5, flag:"🇩🇪", imageFront:"images/Polo_front.jpg", imageRear:"images/Polo_rear.jpg", logo:"logos/Volkswagen.jpg", nationality:"Germania", owner: "Daniele", wiki: "https://it.wikipedia.org/wiki/Volkswagen_Polo_IV", info:""},
-          { id:4, brand:"Fiat", model:"500", plate:"EC 730 CE", seats:4, flag:"🇮🇹", imageFront:"images/500_front.jpg", imageRear:"images/500_rear.jpg", logo:"logos/Fiat.jpg", nationality:"Italia", owner: "Melany", wiki: "https://it.wikipedia.org/wiki/Fiat_500_(2007)", info:""},
-          { id:5, brand:"Lancia", model:"Ypsilon", plate:"CC 791 MD", seats:5, flag:"🇮🇹", imageFront:"images/Ypsilon_front.jpg", imageRear:"images/Ypsilon_rear.jpg", logo:"logos/Lancia.jpg", nationality:"Italia", owner: "Rebecca", wiki: "https://it.wikipedia.org/wiki/Lancia_Y", info:CarModelNotEqualToReal}
+          { id:1, brand:"Citroen", model:"C3", plate:"EL 098 PZ", seats:5, flag:"🇫🇷", imageFront:"images-01/C3_front.jpg", imageRear:"images-01/C3_rear.jpg", nationality:"Francia", owner: "Marina", wiki: "https://it.wikipedia.org/wiki/Citro%C3%ABn_C3_(2009)", info:"" },
+          { id:2, brand:"Renault", model:"Clio", plate:"EN 883 ET", seats:5, flag:"🇫🇷", imageFront:"images-01/Clio_front.jpg", imageRear:"images-01/Clio_rear.jpg", nationality:"Francia", owner: "Filippo", wiki: "https://it.wikipedia.org/wiki/Renault_Clio_III", info:""},
+          { id:3, brand:"Peugeot", model:"308", plate:"HB 669 DB", seats:5, flag:"🇫🇷", imageFront:"images-01/308_front.jpg", imageRear:"images-01/308_rear.jpg", nationality:"Francia", owner: "Riccardo", wiki: "https://it.wikipedia.org/wiki/Peugeot_308_(2021)", info:CarModelNotReallyOwned}
         ];
       }
 

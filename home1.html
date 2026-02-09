@@ -1,0 +1,574 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>IL GARAGE DI CASA PAESANI</title>
+  <link rel="stylesheet" href="style.css">
+  <link rel="manifest" href="manifest.json">
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.5.28/jspdf.plugin.autotable.min.js"></script>
+  <script>
+    if ('serviceWorker' in navigator) {
+      navigator.serviceWorker.register('sw.js').catch(e => console.warn('SW registration failed', e));
+    }
+  </script>
+
+  <style>
+    :root {
+      --bg-color: #0d0d0d;
+      --text-color: #fff;
+      --card-bg: rgba(255, 255, 255, 0.05);
+      --btn-bg: rgba(255, 255, 255, 0.1);
+      --btn-hover: rgba(255, 255, 255, 0.25);
+      --neon: rgba(15, 98, 254, 0.6);
+      --navbar-bg-dark: repeating-linear-gradient(45deg, #111, #111 10px, #0d0d0d 10px, #0d0d0d 20px);
+      --navbar-bg-light: repeating-linear-gradient(45deg, #eee, #eee 10px, #f8f8f8 10px, #f8f8f8 20px);
+      --accent: #0f62fe;
+    }
+
+    body.light-mode {
+      --bg-color: #f8f8f8;
+      --text-color: #1a1a1a;
+      --card-bg: rgba(0, 0, 0, 0.05);
+      --btn-bg: rgba(0, 0, 0, 0.1);
+      --btn-hover: rgba(0, 0, 0, 0.25);
+      --neon: rgba(255, 193, 7, 0.8);
+    }
+
+    body {
+      background: var(--bg-color);
+      color: var(--text-color);
+      font-family: 'Poppins', sans-serif;
+      transition: background 0.5s ease, color 0.5s ease;
+    }
+
+    body.light-mode .navbar {
+      background: var(--navbar-bg-light);
+    }
+
+    /* NAVBAR */
+    .navbar {
+      text-align: center;
+      padding: 22px 0;
+      font-family: 'Poppins', sans-serif;
+      font-size: 1.9rem;
+      letter-spacing: 3px;
+      background: var(--navbar-bg-dark);
+      border-bottom: 4px solid var(--accent);
+      transition: all 0.5s ease;
+    }
+
+    /* 🔹 Pulsanti sopra */
+    .top-buttons {
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      gap: 10px;
+      margin: 10px auto 15px auto;
+    }
+
+    .profile-btn, .pdf-btn, .sorting-btn {
+      padding: 8px 20px;
+      border: none;
+      border-radius: 12px;
+      font-size: 0.95rem;
+      font-weight: 500;
+      color: var(--text-color);
+      background: var(--btn-bg);
+      backdrop-filter: blur(8px);
+      cursor: pointer;
+      transition: all 0.3s ease;
+      box-shadow: 0 0 10px rgba(255,255,255,0.15);
+      text-shadow: 0 0 6px var(--neon);
+      letter-spacing: 0.5px;
+    }
+
+    .profile-btn:hover, .pdf-btn:hover, .sorting-btn:hover {
+      background: var(--btn-hover);
+      transform: scale(1.05);
+      box-shadow: 0 0 15px rgba(255,255,255,0.3);
+    }
+
+    .garage {
+      margin-top: 11px !important;
+      transition: background 0.5s ease, color 0.5s ease;
+    }
+
+    /* 🔹 Sidebar profilo */
+    .sidebar {
+      position: fixed;
+      top: 0;
+      left: -320px;
+      width: 280px;
+      height: 100%;
+      background: var(--card-bg);
+      backdrop-filter: blur(10px);
+      box-shadow: 4px 0 25px rgba(0,0,0,0.4);
+      border-right: 1px solid rgba(255,255,255,0.1);
+      color: var(--text-color);
+      transition: left 0.35s ease, background 0.5s ease, color 0.5s ease;
+      z-index: 9999;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      padding-top: 80px; 
+    }
+
+    .sidebar.open {
+      left: 0;
+    }
+
+    .sidebar img {
+      width: 100px;
+      height: 100px;
+      border-radius: 50%;
+      margin-bottom: 15px;
+      box-shadow: 0 0 20px var(--neon);
+      border: 2px solid rgba(255,255,255,0.3);
+      object-fit: cover;
+      transition: box-shadow 0.5s ease;
+    }
+
+    .username-container {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .edit-username {
+      display: none;
+      margin-top: 10px;
+      text-align: center;
+      width: 100%;
+    }
+
+    .edit-username input {
+      padding: 8px 10px;
+      border-radius: 10px;
+      border: none;
+      outline: none;
+      background: var(--btn-bg);
+      color: var(--text-color);
+      font-size: 0.9rem;
+      width: 80%;
+      text-align: center;
+      box-shadow: 0 0 10px rgba(255,255,255,0.1);
+      transition: all 0.3s ease;
+    }
+
+    .edit-username input:focus {
+      box-shadow: 0 0 12px var(--neon);
+      transform: scale(1.02);
+    }
+
+    .sidebar h2 {
+      margin: 5px 0;
+      font-size: 1.3rem;
+      text-shadow: 0 0 8px var(--neon);
+      transition: text-shadow 0.5s ease;
+    }
+
+    .sidebar p {
+      font-size: 0.9rem;
+      color: rgba(255,255,255,0.8);
+      margin-bottom: 25px;
+      transition: color 0.5s ease;
+    }
+
+    .sidebar button {
+      width: 80%;
+      margin: 8px 0;
+      padding: 10px;
+      border: none;
+      border-radius: 10px;
+      font-size: 0.9rem;
+      font-weight: 500;
+      background: var(--btn-bg);
+      color: var(--text-color);
+      cursor: pointer;
+      transition: all 0.3s ease;
+      box-shadow: 0 0 10px rgba(255,255,255,0.15);
+    }
+
+    .sidebar button:hover {
+      background: var(--btn-hover);
+      transform: scale(1.05);
+    }
+
+    /* 🔹 Pulsante di chiusura */
+    .sidebar .close-btn {
+      position: absolute;
+      top: 18px;
+      right: 18px;
+      font-size: 1.3rem;
+      background: rgba(255,255,255,0.08);
+      border: 1px solid rgba(255,255,255,0.15);
+      border-radius: 50%;
+      width: 32px;
+      height: 32px;
+      color: var(--text-color);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      cursor: pointer;
+      transition: all 0.3s ease;
+    }
+
+    .sidebar .close-btn:hover {
+      background: var(--btn-hover);
+      box-shadow: 0 0 10px var(--neon);
+      transform: scale(1.1);
+    }
+
+    /* 🔹 Overlay scuro */
+    .overlay {
+      position: fixed;
+      inset: 0;
+      background: rgba(0, 0, 0, 0.4);
+      opacity: 0;
+      visibility: hidden;
+      transition: opacity 0.3s ease;
+      z-index: 9998;
+    }
+
+    .overlay.active {
+      opacity: 1;
+      visibility: visible;
+    }
+
+    /* 🔹 Switch Tema */
+    .theme-switch {
+      position: relative;
+      width: 60px;
+      height: 30px;
+      background: var(--btn-bg);
+      border-radius: 30px;
+      cursor: pointer;
+      transition: background 0.4s ease;
+      margin-bottom: 25px;
+    }
+
+    .theme-switch::before {
+      content: "";
+      position: absolute;
+      top: 3px;
+      left: 4px;
+      width: 24px;
+      height: 24px;
+      background: var(--text-color);
+      border-radius: 50%;
+      box-shadow: 0 0 10px var(--neon);
+      transition: all 0.4s ease;
+    }
+
+    body.light-mode .theme-switch::before {
+      left: 32px;
+      box-shadow: 0 0 10px var(--neon);
+    }
+
+    /* Pulsante principale */   
+    .btn {
+      display: block;
+      margin: 25px auto;
+      padding: 12px 25px;
+      border: none;
+      border-radius: 12px;
+      font-size: 1rem;
+      color: var(--text-color);
+      background: var(--btn-bg);
+      box-shadow: 0 0 10px var(--neon);
+      cursor: pointer;
+      transition: all 0.3s ease;
+    }
+
+    .btn:hover {
+      background: var(--btn-hover);
+      transform: scale(1.05);
+    }
+
+    .slider {
+      position: absolute;
+      cursor: pointer;
+      top: 0; left: 0;
+      right: 0; bottom: 0;
+      background-color: #ccc;
+      transition: 0.4s;
+      border-radius: 34px;
+    }
+
+    .slider:before {
+      position: absolute;
+      content: "";
+      height: 22px;
+      width: 22px;
+      left: 3px;
+      bottom: 3px;
+      background-color: white;
+      transition: 0.4s;
+      border-radius: 50%;
+    }
+
+    input:checked + .slider {
+      background-color: #0f62fe;
+    }
+
+    input:checked + .slider:before {
+      transform: translateX(26px);
+    }
+    
+    .edit-icon {
+      font-size: 1rem;
+      cursor: pointer;
+      opacity: 0.8;
+      transition: all 0.3s ease;
+    }
+
+    .edit-icon:hover {
+      transform: scale(1.1);
+      opacity: 1;
+      text-shadow: 0 0 6px var(--neon);
+    }
+  </style>
+</head>
+
+<body>
+  <nav class="navbar" id="navbar">
+    <h1>PAESANI HOME - Il Garage</h1>
+  </nav>
+  <div class="top-buttons">
+    <button class="profile-btn" id="profileBtn">👤 Profilo</button>
+    <button class="pdf-btn" id="pdfBtn">PDF riassuntivo</button>
+    <select class="sorting-btn" id="SortingView">
+      <option value="">Ordina auto…</option>
+      <option value="plate-asc">Targa crescente</option>
+      <option value="plate-desc">Targa decrescente</option>
+      <option value="owner-asc">Proprietario crescente</option>
+      <option value="model-asc">Nome auto crescente</option>
+    </select>
+  </div><br>
+  <div id="garage" class="garage"></div>
+
+  <!-- 🔹 Sidebar profilo -->
+  <div class="sidebar" id="sidebar">
+    <button class="close-btn" id="closeSidebar">✖</button>
+    <img src="images/profile.jpg" alt="Profilo">
+    <div class="username-container">
+      <h2 id="username">HOUSP2002</h2>
+      <span class="edit-icon" id="editUsername">✏️</span>
+    </div>
+    <div class="edit-username" id="editUsernameBox">
+      <input type="text" id="usernameInput" placeholder="Nuovo username">
+    </div>
+    <p id="lastLogin">Ultimo accesso: --</p>
+    <p>Light Mode su questo schermo</p><br>
+    <div class="theme-switch" id="themeSwitch"></div>
+    <button id="logoutFromSidebar">Logout</button>
+  </div>
+
+  <div class="overlay" id="overlay"></div>
+
+  <script>
+    /* HOME - gestione sidebar, username editabile, tema, ecc. */
+    const CarModelNotEqualToReal = "L'auto mostrata si riferisce ad un modello rilasciato precedentemente o successivamente rispetto a quello reale, causa indisponibilità del packaging offerto dal software generativo di immagini. Pertanto, al fine di non generare un disavanzo nell'inserzione, si propone questo surrogato.";
+    const cars = [
+      { id:1, brand:"Citroen", model:"C3", plate:"EL 098 PZ", seats:5, flag:"🇫🇷", imageFront:"images-01/C3_front.jpg", imageRear:"images-01/C3_rear.jpg", nationality:"Francia", owner: "Marina", wiki: "https://it.wikipedia.org/wiki/Citro%C3%ABn_C3_(2009)", info:"" },
+      { id:2, brand:"Renault", model:"Clio", plate:"EN 883 ET", seats:5, flag:"🇫🇷", imageFront:"images-01/Clio_front.jpg", imageRear:"images-01/Clio_rear.jpg", nationality:"Francia", owner: "Filippo", wiki: "https://it.wikipedia.org/wiki/Renault_Clio_III", info:""},
+      { id:3, brand:"Peugeot", model:"308", plate:"HB 669 DB", seats:5, flag:"🇫🇷", imageFront:"images-01/308_front.jpg", imageRear:"images-01/308_rear.jpg", nationality:"Francia", owner: "Riccardo", wiki: "https://it.wikipedia.org/wiki/Peugeot_308_(2021)", info:""}
+    ]
+    try { localStorage.setItem('cars_data', JSON.stringify(cars)); } catch (e) { console.error('localStorage error', e); }
+
+    let frontMode = false;
+
+    /* DOM refs */
+    const garageDiv = document.getElementById('garage');
+    const profileBtn = document.getElementById('profileBtn');
+    const pdfBtn = document.getElementById('pdfBtn');
+    const sidebar = document.getElementById('sidebar');
+    const overlay = document.getElementById('overlay');
+    const closeSidebar = document.getElementById('closeSidebar');
+    const logoutFromSidebar = document.getElementById('logoutFromSidebar');
+    const lastLogin = document.getElementById('lastLogin');
+    const themeSwitch = document.getElementById('themeSwitch'); // optional
+    const usernameDisplay = document.getElementById('username');
+    const editIcon = document.getElementById('editUsername');
+    const editBox = document.getElementById('editUsernameBox');
+    const usernameInput = document.getElementById('usernameInput');
+    const Sorting = document.getElementById('SortingView')
+
+    /* render garage */
+    function renderGarage(){
+      garageDiv.innerHTML = '';
+      cars.forEach(car => {
+        const card = document.createElement('div');
+        card.className = 'car-card';
+        card.setAttribute('data-id', car.id);
+        card.style.cursor = 'pointer';
+
+        const img = document.createElement('img');
+        img.className = 'car-image';
+        img.src = frontMode ? car.imageFront : car.imageRear;
+        img.alt = `${car.brand} ${car.model}`;
+        img.onerror = () => img.src = 'images/placeholder.jpg';
+
+        const info = document.createElement('div');
+        info.className = 'car-info';
+        info.innerHTML = `<h3>${car.flag} ${car.brand} ${car.model}</h3>
+                          <p class="plate"><strong>Targa:</strong> ${car.plate}</p>
+                          <p class="seats"><strong>Posti:</strong> ${car.seats}</p>`;
+
+        card.appendChild(img);
+        card.appendChild(info);
+        garageDiv.appendChild(card);
+
+        card.addEventListener('click', () => {
+          try { localStorage.setItem('cars_data', JSON.stringify(cars)); } catch(e){console.warn(e);}
+          window.location.href = `car1.html?id=${encodeURIComponent(car.id)}`;
+        });
+      });
+    }
+    Sorting.addEventListener("change", () => {
+      switch (Sorting.value) {
+
+        case "plate-asc":
+          cars.sort((a,b) => a.plate.localeCompare(b.plate));
+          break;
+
+        case "plate-desc":
+          cars.sort((a,b) => b.plate.localeCompare(a.plate));
+          break;
+
+        case "owner-asc":
+          cars.sort((a,b) => a.owner.localeCompare(b.owner));
+          break;
+
+        case "model-asc":
+          cars.sort((a,b) =>
+            `${a.brand} ${a.model}`.localeCompare(`${b.brand} ${b.model}`)
+          );
+          break;
+      }
+      renderGarage();
+    })
+    // Per switchare il tema in light mode
+    function setTheme(mode){
+      if(mode === 'light') document.body.classList.add('light-mode');
+      else document.body.classList.remove('light-mode');
+      localStorage.setItem('theme', mode);
+    }
+    /* Gestisco il cambio password (salvata in Localstorage) */
+    function loadUsername(){
+      const saved = localStorage.getItem('saved_username') || 'HOUSP2002';
+      usernameDisplay.textContent = saved;
+      console.log('Loaded username:', saved);
+    }
+    function showSaveFeedback() {
+      // piccolo check a destra dello username (creiamo elemento temporaneo)
+      const check = document.createElement('span');
+      check.textContent = ' ✓';
+      check.style.color = '#4caf50';
+      check.style.opacity = '0';
+      check.style.transition = 'opacity 0.25s ease, transform 0.25s ease';
+      usernameDisplay.appendChild(check);
+      requestAnimationFrame(()=> { check.style.opacity = '1'; check.style.transform = 'translateY(-2px)'; });
+      setTimeout(()=> {
+        check.style.opacity = '0';
+        check.style.transform = 'translateY(-6px)';
+        setTimeout(()=> check.remove(), 300);
+      }, 1200);
+    }
+
+    function enableUsernameEdit(){
+      editBox.style.display = 'block';
+      usernameInput.value = usernameDisplay.textContent;
+      usernameInput.focus();
+      usernameInput.select();
+    }
+
+    function saveUsername(){
+      const newName = usernameInput.value.trim();
+      const old = usernameDisplay.textContent;
+      if(newName && newName !== old){
+        localStorage.setItem('saved_username', newName);
+        localStorage.setItem('logged_user', newName);
+        usernameDisplay.textContent = newName;
+        console.log('Saved new username:', newName);
+        showSaveFeedback();
+      }
+      editBox.style.display = 'none';
+    }
+
+    /* events */
+    document.addEventListener('DOMContentLoaded', ()=> {
+      renderGarage();
+      loadUsername();
+
+      // last login
+      const now = new Date().toLocaleString('it-IT', { dateStyle:'full', timeStyle:'short' });
+      localStorage.setItem('lastLogin', now);
+      lastLogin.textContent = `Ultimo accesso: ${now}`;
+
+      // restore theme
+      const savedTheme = localStorage.getItem('theme') || 'dark';
+      setTheme(savedTheme);
+
+      document.getElementById('navbar').addEventListener('click', ()=> { frontMode = !frontMode; renderGarage(); });
+      if(profileBtn) profileBtn.addEventListener('click', ()=> { sidebar.classList.add('open'); overlay.classList.add('active'); });
+      if(closeSidebar) closeSidebar.addEventListener('click', closeProfile);
+      if(overlay) overlay.addEventListener('click', closeProfile);
+      if(logoutFromSidebar) logoutFromSidebar.addEventListener('click', logout);
+
+      if(themeSwitch) themeSwitch.addEventListener('click', ()=> {
+        const newTheme = document.body.classList.contains('light-mode') ? 'dark' : 'light';
+        setTheme(newTheme);
+      });
+
+      /* username edit */
+      if(editIcon) editIcon.addEventListener('click', enableUsernameEdit);
+      if(usernameInput){
+        usernameInput.addEventListener('blur', saveUsername);
+        usernameInput.addEventListener('keydown', e => { if(e.key === 'Enter') saveUsername(); });
+      }
+
+      console.log('Home loaded. saved_username=', localStorage.getItem('saved_username'));
+    });
+
+    /* helpers */
+    function closeProfile(){ sidebar.classList.remove('open'); overlay.classList.remove('active'); }
+    function logout(){ localStorage.removeItem('logged_user'); window.location.href = 'index.html'; }
+    pdfBtn.addEventListener("click", () => {
+      const { jsPDF } = window.jspdf;
+      const doc = new jsPDF();
+      const pageWidth = doc.internal.pageSize.getWidth();
+
+      doc.setFontSize(18);
+      doc.text("Report Auto – Garage Casa Paesani", 14, 20);
+
+      const tableData = cars.map(car => [
+        `${car.brand} ${car.model}`,
+        car.plate,
+        car.seats,
+        car.nationality,
+        car.owner
+      ]);
+
+      doc.autoTable({
+        startY: 30,
+        head: [["Modello", "Targa", "Posti", "Nazione auto", "Proprietario"]],
+        body: tableData,
+        theme: "grid",
+        headStyles: { fillColor: [15, 98, 254] },
+        didDrawPage: (data) => {}
+      });
+      const finalY = doc.lastAutoTable.finalY;
+      doc.setFontSize(7.5);
+      doc.text("<< Garage di Casa Paesani: divertimento familista e senza eguali. >>",
+        pageWidth / 2, finalY + 10, { align: "center" });
+      doc.setFontSize(10);
+      doc.text("• Ultimo download: " + new Date().toLocaleString(), 14, finalY + 20);
+      doc.save("GARAGE_CASA_PAESANI.pdf");
+    });
+  </script>
+
+</body>
+</html>

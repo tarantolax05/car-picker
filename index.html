@@ -234,16 +234,22 @@
       <button class="btn btn-login" id="loginBtn" type="button">Entra</button> 
       <div id="loader"></div> 
       <div id="errorMsg" class="error">Username o password errati.</div> 
-      <p class="footer-text">Benvenuto nel garage dei Donatelli. Accedi con le credenziali fornite da Tarantolax.</p> 
+      <p class="footer-text">Benvenuto nel Portale Garage. Accedi con le credenziali fornite da Tarantolax.</p> 
     </div>
   </div>
 
   <script>
     document.addEventListener('DOMContentLoaded', () => {
-      // leggi lo username dinamico ogni volta che la pagina viene caricata
-      const SAVED_USER = localStorage.getItem('saved_username') || 'ADMIN2020';
-      const LOGIN_PASS = 'donat00i';
-
+      const USERS = {
+        "ADMIN2020": {
+          password: "donat00i",
+          redirect: "home.html"
+        },
+        "HOUSP2002": {
+          password: "silpa00e",
+          redirect: "home1.html"
+        }
+      };
       const usernameEl = document.getElementById('username');
       const passwordEl = document.getElementById('password');
       const loginBtn = document.getElementById('loginBtn');
@@ -251,7 +257,6 @@
       const loader = document.getElementById('loader');
       const togglePasswordBtn = document.getElementById('togglePassword');
 
-      console.log('Login page loaded. accepted username =', SAVED_USER);
 
       function showError(text){
         errorMsg.textContent = text || 'Username o password errati.';
@@ -259,23 +264,32 @@
         void errorMsg.offsetWidth;
         errorMsg.classList.add('show');
       }
-      function clearError(){ errorMsg.classList.remove('show'); }
+      function clearError(){
+        errorMsg.classList.remove('show'); 
+      }
 
       function handleLogin(){
-        // leggi di nuovo saved_username al momento del login (più robusto)
-        const currentSaved = localStorage.getItem('saved_username') || 'ADMIN2020';
+
         const user = usernameEl.value.trim();
         const pass = passwordEl.value.trim();
-        console.log('Try login with', user, pass ? '***' : '(empty)');
-        if(user === currentSaved && pass === LOGIN_PASS){
+        const account = USERS[user];
+
+        if(account && account.password === pass){
+
           loginBtn.style.display = 'none';
           if(loader) loader.style.display = 'block';
-          try{ localStorage.setItem('logged_user', user); } catch(e){}
-          setTimeout(()=> window.location.href = 'home.html', 700);
+          try{
+            localStorage.setItem('logged_user', user);
+          }catch(e){}
+          setTimeout(()=>{
+            window.location.href = account.redirect;
+          },700);
+
         } else {
           showError();
         }
       }
+
 
       loginBtn.addEventListener('click', handleLogin);
       document.addEventListener('keydown', (e)=> {
