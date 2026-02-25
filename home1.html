@@ -370,11 +370,11 @@
 
   <script>
     /* HOME - gestione sidebar, username editabile, tema, ecc. */
-    const CarModelNotEqualToReal = "L'auto mostrata si riferisce ad un modello rilasciato precedentemente o successivamente rispetto a quello reale, causa indisponibilità del packaging offerto dal software generativo di immagini. Pertanto, al fine di non generare un disavanzo nell'inserzione, si propone questo surrogato.";
+    const CarModelNotReallyOwned = "L'auto mostrata si riferisce ad un modello aziendale ad uso promiscuo, non personalmente posseduto da chi viene designato come proprietario, il quale però adopera il mezzo.";
     const cars = [
       { id:1, brand:"Citroen", model:"C3", plate:"EL 098 PZ", seats:5, flag:"🇫🇷", imageFront:"images-01/C3_front.jpg", imageRear:"images-01/C3_rear.jpg", nationality:"Francia", owner: "Marina", wiki: "https://it.wikipedia.org/wiki/Citro%C3%ABn_C3_(2009)", info:"" },
       { id:2, brand:"Renault", model:"Clio", plate:"EN 883 ET", seats:5, flag:"🇫🇷", imageFront:"images-01/Clio_front.jpg", imageRear:"images-01/Clio_rear.jpg", nationality:"Francia", owner: "Filippo", wiki: "https://it.wikipedia.org/wiki/Renault_Clio_III", info:""},
-      { id:3, brand:"Peugeot", model:"308", plate:"HB 669 DB", seats:5, flag:"🇫🇷", imageFront:"images-01/308_front.jpg", imageRear:"images-01/308_rear.jpg", nationality:"Francia", owner: "Riccardo", wiki: "https://it.wikipedia.org/wiki/Peugeot_308_(2021)", info:""}
+      { id:3, brand:"Peugeot", model:"308", plate:"HB 669 DB", seats:5, flag:"🇫🇷", imageFront:"images-01/308_front.jpg", imageRear:"images-01/308_rear.jpg", nationality:"Francia", owner: "Riccardo", wiki: "https://it.wikipedia.org/wiki/Peugeot_308_(2021)", info:CarModelNotReallyOwned}
     ]
     try { localStorage.setItem('cars_data', JSON.stringify(cars)); } catch (e) { console.error('localStorage error', e); }
 

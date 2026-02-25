@@ -217,6 +217,85 @@
     .toggle-password:active {
       transform: translateY(-50%) scale(0.95);
     }
+
+    /* INFO BUTTON */
+
+    .info-wrapper{
+      position: relative;
+      margin-bottom: 18px;
+    }
+
+    .info-btn{
+      width: 28px;
+      height: 28px;
+      border-radius: 50%;
+      border: 1px solid rgba(255,255,255,0.3);
+      background: rgba(255,255,255,0.12);
+      backdrop-filter: blur(6px);
+      color: #fff;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all .25s ease;
+    }
+
+    .info-btn:hover{
+      background: rgba(15,98,254,0.25);
+      box-shadow: 0 0 10px rgba(15,98,254,0.5);
+      transform: scale(1.1);
+    }
+
+    .info-btn:active{
+      transform: scale(0.95);
+    }
+
+
+    /* POPUP */
+
+    .info-popup{
+      position: absolute;
+      top: 40px;
+      left: 50%;
+      transform: translateX(-50%) scale(0.9);
+      width: 260px;
+
+      background: rgba(255,255,255,0.13);
+      backdrop-filter: blur(14px) saturate(150%);
+      border-radius: 14px;
+      border: 1px solid rgba(255,255,255,0.2);
+      box-shadow: 0 10px 25px rgba(0,0,0,0.4);
+
+      padding: 15px 18px;
+      text-align: center;
+
+      opacity: 0;
+      pointer-events: none;
+
+      transition: all .25s ease;
+      z-index: 5;
+    }
+
+    .info-popup h3{
+      margin: 0 0 6px;
+      font-size: 1rem;
+      font-weight: 600;
+    }
+
+    .info-popup p{
+      margin: 0;
+      font-size: .9rem;
+      color: rgba(255,255,255,0.8);
+      line-height: 1.4;
+    }
+
+
+    /* POPUP VISIBILE */
+
+    .info-popup.show{
+      opacity: 1;
+      pointer-events: auto;
+      transform: translateX(-50%) scale(1);
+    }
+
   </style>
 </head>
 
@@ -226,15 +305,30 @@
 
     <div class="login-box"> 
       <h1>Accedi al Garage</h1> 
+
       <input type="text" id="username" placeholder="Nome utente" autocomplete="username" /> 
       <div class="input-wrapper"> 
         <input type="password" id="password" placeholder="Password" autocomplete="current-password" /> 
-        <button type="button" class="toggle-password" id="togglePassword"><i class="fa-solid fa-eye"></i></button> 
+        <button type="button" class="toggle-password" id="togglePassword"><i class="fa-solid fa-eye"></i></button>
       </div> 
       <button class="btn btn-login" id="loginBtn" type="button">Entra</button> 
       <div id="loader"></div> 
       <div id="errorMsg" class="error">Username o password errati.</div> 
       <p class="footer-text">Benvenuto nel Portale Garage. Accedi con le credenziali fornite da Tarantolax.</p> 
+      <div class="info-wrapper">
+        <button class="info-btn" id="infoBtn">i</button>
+
+        <div class="info-popup" id="infoPopup">
+          <h3>Immissione Comando Rapido</h3>
+
+          <input 
+            type="text" 
+            id="infoInput" 
+            class="info-input"
+            placeholder="Immetti un comando"
+          >
+        </div>
+      </div>
     </div>
   </div>
 
@@ -309,14 +403,51 @@
         });
       }
 
-      // prefill username field to help user
-      usernameEl.value = SAVED_USER;
-      // also show small hint (optional)
-      const hint = document.getElementById('savedHint');
-      if(hint) hint.textContent = `Accesso con: ${SAVED_USER}`;
+      const infoBtn = document.getElementById('infoBtn');
+      const infoPopup = document.getElementById('infoPopup');
+
+      if(infoBtn && infoPopup){
+
+        infoBtn.addEventListener('click', (e)=>{
+          e.stopPropagation();
+
+          const isOpen = infoPopup.classList.contains('show');
+
+          // chiude tutti prima
+          infoPopup.classList.remove('show');
+
+          // riapre solo se era chiuso
+          if(!isOpen){
+            infoPopup.classList.add('show');
+          }
+        });
+
+        document.addEventListener('click', (e)=>{
+
+          // se clicco fuori dall'area info → chiudo
+          if(!infoPopup.contains(e.target) && !infoBtn.contains(e.target)){
+            infoPopup.classList.remove('show');
+          }
+
+        });
+      }
+
+      const infoInput = document.getElementById('infoInput');
+      if(infoInput){
+        infoInput.addEventListener('keydown', (e)=>{
+          if(e.key === 'Enter'){
+            const value = infoInput.value.trim();
+            if(value === '1'){
+              window.location.href = 'GENERIC-WARNING.html'; // CAMBIA QUI
+            } 
+            else {
+              infoInput.value = '';
+              infoInput.placeholder = 'Codice non valido. Riprovare.';
+            }
+          }
+        });
+      }
     });
   </script>
-
-
 </body>
 </html>

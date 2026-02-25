@@ -1,0 +1,116 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+<title>Lavori in corso</title>
+
+<style>
+
+  body{
+    margin:0;
+    padding:0;
+    background:#111;
+    color:#fff;
+    font-family: Arial, Helvetica, sans-serif;
+
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    height:100vh;
+    text-align:center;
+  }
+
+  .container{
+    border:3px dashed #ffcc00;
+    padding:40px 30px;
+    background:#1a1a1a;
+    max-width:400px;
+    width:90%;
+  }
+
+  h1{
+    font-size:2.2rem;
+    margin-bottom:15px;
+    color:#ffcc00;
+    letter-spacing:2px;
+  }
+
+  .emoji{
+    font-size:3rem;
+    margin-bottom:15px;
+  }
+
+  p{
+    font-size:1rem;
+    line-height:1.5;
+    color:#ccc;
+  }
+
+  .bar{
+    margin:25px 0;
+    height:20px;
+    background:#333;
+    border:1px solid #555;
+    position:relative;
+    overflow:hidden;
+  }
+
+  .progress{
+    height:100%;
+    width:35%;
+    background: repeating-linear-gradient(
+      45deg,
+      #ffcc00,
+      #ffcc00 10px,
+      #000 10px,
+      #000 20px
+    );
+
+    animation: move 2s linear infinite;
+  }
+
+  @keyframes move{
+    from{ background-position:0 0; }
+    to{ background-position:40px 0; }
+  }
+
+  .footer{
+    margin-top:20px;
+    font-size:0.8rem;
+    color:#777;
+  }
+
+</style>
+</head>
+
+<body>
+
+<div class="container">
+
+  <div class="emoji">🚧</div>
+
+  <h1>LAVORI IN CORSO</h1>
+
+  <p>
+    Questa sezione del portale è attualmente in costruzione.<br>
+    Sto sistemando tutto.
+  </p>
+
+  <div class="bar">
+    <div class="progress"></div>
+  </div>
+
+  <p>
+    Torna più tardi
+  </p>
+
+  <div class="footer">
+    © Garage - Work in progress
+  </div>
+
+</div>
+
+</body>
+</html>
